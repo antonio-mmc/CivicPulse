@@ -22,9 +22,10 @@
 
   <ul class="nav-links">
     <li><a href="#how">Como Funciona</a></li>
-    <li><a href="#explore">Mapa da Cidade</a></li>
+    <li><a href="#explore">Explorar</a></li>
     <li><a href="#communities">Comunidades</a></li>
-    <li><a href="#jornal">Obras e Planeamento</a></li>
+    <li><a href="#jornal">Jornal da Cidade</a></li>
+    <li><a href="#gamification">Recompensas</a></li>
   </ul>
 
   <div class="nav-actions">
@@ -52,91 +53,120 @@
   <div class="hero-content">
     <div class="hero-badge">
       <span class="badge-dot"></span>
-      Plataforma de Inteligência Urbana Ativa
+      IA · Participação Cívica · ERP Municipal
     </div>
 
-    <h1>Ouvir, analisar, agir, <em>transformar.</em></h1>
+    <h1>A voz do cidadão,<br><em>amplificada pela IA.</em></h1>
 
-    <p>Transforme a frustração em colaboração. Reporte anomalias, junte-se a comunidades de ocorrência e acompanhe a melhoria do espaço público em tempo real.</p>
+    <p>Reporte com foto ou texto, dialogue com a IA e veja as suas contribuições chegarem ao município enriquecidas. Transparência real entre cidadão e câmara.</p>
 
     <div class="hero-ctas">
       <button class="btn-hero btn-hero-main" onclick="openModal()">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" width="18" height="18">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
         </svg>
-        Quero fazer uma contribuição
+        Fazer uma Contribuição
       </button>
       <a href="#explore" class="btn-hero btn-hero-ghost">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="18" height="18">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z"/>
         </svg>
-        Explorar Mapa de Ocorrências
+        Explorar Ocorrências
       </a>
     </div>
-
   </div>
 
-  <!-- Cards nas laterais — aparecem e desaparecem automaticamente -->
   <div class="float-card float-card-left">
     <button class="float-close" onclick="dismissCard(this)" title="Fechar">✕</button>
-    <div class="float-icon">✅</div>
-    <div class="float-title">Problema Resolvido!</div>
-    <div class="float-text">A repavimentação da Rua das Flores foi concluída com sucesso.</div>
-    <span class="float-tag tag-green">🏗️ Obra Concluída</span>
+    <div class="float-icon">🤖</div>
+    <div class="float-title">IA Analisou a Foto</div>
+    <div class="float-text">Pavimento degradado detectado na Rua das Flores. 8 ocorrências similares encontradas.</div>
+    <span class="float-tag tag-purple">⚡ Prioridade Alta</span>
   </div>
 
   <div class="float-card float-card-right-upper">
     <button class="float-close" onclick="dismissCard(this)" title="Fechar">✕</button>
-    <div class="float-icon">👥</div>
-    <div class="float-title">Validação Comunitária</div>
-    <div class="float-text">+52 munícipes também reportaram este problema.</div>
-    <span class="float-tag tag-blue">📍 Alta Prioridade</span>
+    <div class="float-icon">📤</div>
+    <div class="float-title">Enviado para ERP Municipal</div>
+    <div class="float-text">Ocorrência #OC-4821 encaminhada ao Dept. Obras e Infraestruturas.</div>
+    <span class="float-tag tag-blue">🏛️ ERP Integrado</span>
   </div>
 
   <div class="float-card float-card-right-lower">
     <button class="float-close" onclick="dismissCard(this)" title="Fechar">✕</button>
-    <div class="float-icon">🤖</div>
-    <div class="float-title">Assistente IA CivicPulse</div>
-    <div class="float-text">A sua ocorrência foi classificada como <strong>prioritária</strong> pela IA e encaminhada aos serviços municipais.</div>
-    <span class="float-tag tag-purple">⚡ IA Processou</span>
+    <div class="float-icon">👥</div>
+    <div class="float-title">Comunidade Sugerida</div>
+    <div class="float-text">47 vizinhos com o mesmo problema. A IA sugere que entre na comunidade.</div>
+    <span class="float-tag tag-green">✓ Entrar na Comunidade</span>
   </div>
 </section>
 
 <!-- ══════════════════════════════════════════
-     HOW IT WORKS
+     HOW IT WORKS — FLUXO CORE
 ══════════════════════════════════════════ -->
 <section class="how" id="how">
   <div class="how-header">
-    <span class="section-label">Processo</span>
-    <h2 class="section-title">Como Funciona</h2>
-    <p class="section-sub">Em 4 passos simples, a sua voz chega à câmara municipal.</p>
+    <span class="section-label">Fluxo Central</span>
+    <h2 class="section-title">Como Funciona o CivicPulse</h2>
+    <p class="section-sub">Da rua ao município — um fluxo inteligente, conversacional e transparente.</p>
   </div>
 
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-icon">📍</div>
-      <div class="step-name">Reporte</div>
-      <div class="step-desc">Identifique o problema no mapa e descreva-o ou fotografe-o.</div>
+  <div class="how-phases">
+
+    <div class="how-phase">
+      <div class="phase-pill citizen-pill">👤 O Cidadão</div>
+      <div class="steps-3col">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-icon">🔍</div>
+          <div class="step-name">Consulta</div>
+          <div class="step-desc">Explora obras planeadas, ocorrências ativas e comunidades na sua zona — num formato tipo jornal.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-icon">📎</div>
+          <div class="step-name">Contribui</div>
+          <div class="step-desc">Faz upload de foto, vídeo ou documento. A IA analisa e preenche automaticamente os detalhes.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-icon">💬</div>
+          <div class="step-name">Dialoga com a IA</div>
+          <div class="step-desc">A sessão fica aberta. A IA pergunta, clarifica e enriquece a contribuição. O cidadão fica mais informado.</div>
+        </div>
+      </div>
     </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-icon">🤖</div>
-      <div class="step-name">IA Classifica</div>
-      <div class="step-desc">A nossa IA categoriza e prioriza automaticamente a ocorrência.</div>
+
+    <div class="phase-connector">
+      <div class="connector-line"></div>
+      <span class="connector-label">⚡ A IA transforma a contribuição</span>
+      <div class="connector-line"></div>
     </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-icon">👥</div>
-      <div class="step-name">Comunidade Valida</div>
-      <div class="step-desc">Outros munícipes validam o problema, aumentando a sua prioridade.</div>
+
+    <div class="how-phase">
+      <div class="phase-pill platform-pill">🤖 A Plataforma</div>
+      <div class="steps-3col">
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-icon">🔗</div>
+          <div class="step-name">Agrega e Contextualiza</div>
+          <div class="step-desc">A IA agrupa ocorrências similares, sobe a prioridade e sugere ao cidadão comunidades existentes.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-icon">👥</div>
+          <div class="step-name">Comunidade Colaborativa</div>
+          <div class="step-desc">Os cidadãos colaboram em grupo, partilham atualizações e chegam a soluções melhores juntos.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">6</div>
+          <div class="step-icon">🏛️</div>
+          <div class="step-name">ERP Municipal</div>
+          <div class="step-desc">A ocorrência enriquecida é enviada automaticamente ao sistema do município. O cidadão acompanha e recebe notificações.</div>
+        </div>
+      </div>
     </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-icon">🏗️</div>
-      <div class="step-name">Resolução</div>
-      <div class="step-desc">O município age e você acompanha cada etapa da resolução.</div>
-    </div>
+
   </div>
 </section>
 
@@ -145,9 +175,9 @@
 ══════════════════════════════════════════ -->
 <section class="explore" id="explore">
   <div class="text-center" style="margin-bottom:40px;">
-    <span class="section-label">Explorar</span>
-    <h2 class="section-title">Encontre Ocorrências na Sua Zona</h2>
-    <p class="section-sub">Pesquise, filtre e junte-se às comunidades mais ativas da sua cidade.</p>
+    <span class="section-label">Consultar</span>
+    <h2 class="section-title">O Que Está a Acontecer na Sua Cidade</h2>
+    <p class="section-sub">Explore ocorrências ativas, obras planeadas e comunidades na sua zona.</p>
   </div>
 
   <div class="search-wrap">
@@ -165,61 +195,53 @@
     <button class="pill">🔥 Mais Validadas</button>
     <button class="pill">🔧 Em Resolução</button>
     <button class="pill">✅ Resolvidas</button>
+    <button class="pill">🏗️ Obras Planeadas</button>
     <button class="pill">🆕 Recentes</button>
   </div>
 
   <div class="communities-grid" id="communities">
-    <!-- Card 1 -->
     <div class="community-card">
       <div class="card-img">🚶</div>
       <div class="card-body">
         <span class="card-badge tag-orange">⚠️ Em Análise</span>
         <div class="card-title">Falta de passadeira na Escola Básica da Fontinha</div>
-        <div class="progress-label">
-          <span>Progresso</span>
-          <span>35%</span>
-        </div>
+        <div class="progress-label"><span>Progresso</span><span>35%</span></div>
         <div class="progress-bar"><div class="progress-fill" style="width:35%"></div></div>
         <div class="card-meta">
           <span>👥 <strong>120</strong> pessoas afetadas</span>
           <span>📅 3 dias atrás</span>
         </div>
+        <button class="card-join-btn" onclick="openModal()">Ver Comunidade →</button>
       </div>
     </div>
 
-    <!-- Card 2 -->
     <div class="community-card">
       <div class="card-img">💡</div>
       <div class="card-body">
         <span class="card-badge tag-indigo">🔧 Em Resolução</span>
         <div class="card-title">Iluminação pública deficiente na Avenida do Parque</div>
-        <div class="progress-label">
-          <span>Progresso</span>
-          <span>72%</span>
-        </div>
+        <div class="progress-label"><span>Progresso</span><span>72%</span></div>
         <div class="progress-bar"><div class="progress-fill" style="width:72%"></div></div>
         <div class="card-meta">
           <span>👥 <strong>87</strong> pessoas afetadas</span>
           <span>📅 1 semana atrás</span>
         </div>
+        <button class="card-join-btn" onclick="openModal()">Ver Comunidade →</button>
       </div>
     </div>
 
-    <!-- Card 3 -->
     <div class="community-card">
       <div class="card-img">🌳</div>
       <div class="card-body">
         <span class="card-badge tag-emerald">✅ Aprovado</span>
         <div class="card-title">Construção de parque infantil na Quinta das Acácias</div>
-        <div class="progress-label">
-          <span>Progresso</span>
-          <span>90%</span>
-        </div>
+        <div class="progress-label"><span>Progresso</span><span>90%</span></div>
         <div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
         <div class="card-meta">
           <span>👥 <strong>204</strong> pessoas afetadas</span>
           <span>📅 2 semanas atrás</span>
         </div>
+        <button class="card-join-btn" onclick="openModal()">Ver Comunidade →</button>
       </div>
     </div>
   </div>
@@ -231,17 +253,16 @@
 <section class="jornal" id="jornal">
   <div class="jornal-header">
     <span class="section-label">Transparência</span>
-    <h2 class="section-title">Inteligência Urbana em Ação</h2>
-    <p class="section-sub">Veja como as queixas dos munícipes se transformam em obras reais e melhorias concretas.</p>
+    <h2 class="section-title">Jornal da Cidade — Resultados Reais</h2>
+    <p class="section-sub">Veja como as contribuições dos munícipes se transformam em obras e melhorias concretas.</p>
   </div>
 
   <div class="jornal-grid">
 
-    <!-- Artigo 1 – Antes/Depois -->
     <div class="jornal-card">
       <div class="jornal-card-header">
         <span class="article-tag tag-orange">🏗️ Obra Concluída</span>
-        <div class="jornal-title">Agrupamento de 15 queixas resultou na requalificação da rede elétrica da Freguesia de Benfica</div>
+        <div class="jornal-title">15 contribuições agrupadas pela IA resultaram na requalificação da rede elétrica de Benfica</div>
       </div>
       <div class="before-after">
         <div class="ba-panel ba-before">
@@ -255,66 +276,153 @@
           <span style="font-size:.7rem;font-weight:400;">Totalmente renovada</span>
         </div>
       </div>
-      <p class="jornal-desc">15 ocorrências individuais foram agrupadas pela IA e submetidas como projeto prioritário ao município, resultando numa intervenção de €240.000.</p>
+      <p class="jornal-desc">A IA agrupou 15 ocorrências individuais e submeteu como projeto prioritário ao ERP municipal, resultando numa intervenção de €240.000.</p>
     </div>
 
-    <!-- Artigo 2 – Dashboard -->
     <div class="jornal-card">
       <div class="jornal-card-header">
-        <span class="article-tag tag-indigo">📊 Analytics</span>
-        <div class="jornal-title">Desempenho Municipal — Abril 2026</div>
+        <span class="article-tag tag-indigo">📊 Desempenho Municipal</span>
+        <div class="jornal-title">Impacto CivicPulse — Abril 2026</div>
       </div>
       <div class="stats-panel">
         <div class="stat-row">
           <span class="stat-label">Tempo médio de resposta</span>
-          <div>
-            <span class="stat-value">4.2d</span>
-            <span class="stat-trend trend-down">↓ 40%</span>
-          </div>
+          <div><span class="stat-value">4.2d</span><span class="stat-trend trend-down">↓ 40%</span></div>
         </div>
         <div class="stat-row">
           <span class="stat-label">Ocorrências resolvidas</span>
-          <div>
-            <span class="stat-value">318</span>
-            <span class="stat-trend trend-up">↑ 28%</span>
-          </div>
+          <div><span class="stat-value">318</span><span class="stat-trend trend-up">↑ 28%</span></div>
         </div>
         <div class="stat-row">
           <span class="stat-label">Satisfação dos munícipes</span>
-          <div>
-            <span class="stat-value">87%</span>
-            <span class="stat-trend trend-up">↑ 12%</span>
-          </div>
+          <div><span class="stat-value">87%</span><span class="stat-trend trend-up">↑ 12%</span></div>
         </div>
         <div class="stat-row">
-          <span class="stat-label">Novas comunidades</span>
-          <div>
-            <span class="stat-value">23</span>
-            <span class="stat-trend trend-up">↑ 15%</span>
-          </div>
+          <span class="stat-label">Contribuições processadas por IA</span>
+          <div><span class="stat-value">1.240</span><span class="stat-trend trend-up">↑ 94%</span></div>
         </div>
       </div>
     </div>
 
-    <!-- Artigo 3 – Nova Comunidade -->
     <div class="jornal-card">
       <div class="jornal-card-header">
-        <span class="article-tag tag-emerald">🐾 Nova Comunidade</span>
-        <div class="jornal-title">Construção de Parque Canino aprovada na Quinta da Piedade</div>
+        <span class="article-tag tag-emerald">🐾 Comunidade em Ação</span>
+        <div class="jornal-title">Parque Canino na Quinta da Piedade aprovado após 340 contribuições</div>
       </div>
       <p class="jornal-desc" style="padding-top:12px;">
-        Após 340 validações comunitárias e 3 meses de petição digital, a câmara aprovou a construção de um parque canino de 800m² com inauguração prevista para Junho de 2026.
+        A IA agrupou 340 contribuições individuais, criou uma comunidade e encaminhou um relatório consolidado ao município. Aprovação em 3 meses.
       </p>
       <div style="padding: 0 20px 20px;">
-        <div class="progress-label">
-          <span>Fase de Projeto</span>
-          <span>60%</span>
-        </div>
+        <div class="progress-label"><span>Fase de Projeto</span><span>60%</span></div>
         <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
         <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
-          <span class="float-tag tag-green">🐕 340 Validações</span>
+          <span class="float-tag tag-green">🐕 340 Contribuições</span>
           <span class="float-tag tag-blue">📅 Jun 2026</span>
           <span class="float-tag tag-purple">800m²</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     GAMIFICAÇÃO
+══════════════════════════════════════════ -->
+<section class="gamification" id="gamification">
+  <div class="gami-header">
+    <span class="section-label">Gamificação</span>
+    <h2 class="section-title">Cada Contribuição Tem Valor</h2>
+    <p class="section-sub">Participe, acumule experiência e desbloqueie recompensas reais pela sua cidade.</p>
+  </div>
+
+  <div class="gami-grid">
+
+    <!-- Perfil / Level -->
+    <div class="gami-card level-card">
+      <div class="level-avatar">A</div>
+      <div class="level-name">António Silva</div>
+      <div class="level-title">🏅 Nível 3 — Cidadão Ativo</div>
+      <div class="xp-label">
+        <span>Experiência</span>
+        <span>2.340 / 3.000 XP</span>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" style="width:78%"></div></div>
+      <div class="level-stats">
+        <div class="lstat"><div class="lstat-val">23</div><div class="lstat-key">Contribuições</div></div>
+        <div class="lstat"><div class="lstat-val">87</div><div class="lstat-key">Validações</div></div>
+        <div class="lstat"><div class="lstat-val">5</div><div class="lstat-key">Comunidades</div></div>
+      </div>
+    </div>
+
+    <!-- Badges / Conquistas -->
+    <div class="gami-card badges-card">
+      <div class="gami-card-title">🏆 Conquistas Desbloqueadas</div>
+      <div class="badges-grid">
+        <div class="badge-item earned">
+          <div class="badge-icon">📍</div>
+          <div class="badge-name">Primeiro Reporte</div>
+        </div>
+        <div class="badge-item earned">
+          <div class="badge-icon">🔍</div>
+          <div class="badge-name">Validador Ativo</div>
+        </div>
+        <div class="badge-item earned">
+          <div class="badge-icon">📷</div>
+          <div class="badge-name">Fotógrafo Urbano</div>
+        </div>
+        <div class="badge-item earned">
+          <div class="badge-icon">👥</div>
+          <div class="badge-name">Membro de Comunidade</div>
+        </div>
+        <div class="badge-item locked">
+          <div class="badge-icon">🌟</div>
+          <div class="badge-name">Embaixador Cívico</div>
+          <div class="badge-lock">🔒</div>
+        </div>
+        <div class="badge-item locked">
+          <div class="badge-icon">🏆</div>
+          <div class="badge-name">Cidadão do Mês</div>
+          <div class="badge-lock">🔒</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recompensas -->
+    <div class="gami-card rewards-card">
+      <div class="gami-card-title">🎁 Recompensas Disponíveis</div>
+      <div class="rewards-list">
+        <div class="reward-item available">
+          <div class="reward-icon">🚌</div>
+          <div class="reward-info">
+            <div class="reward-name">-10% no Passe de Transporte</div>
+            <div class="reward-pts">500 XP</div>
+          </div>
+          <button class="reward-btn">Resgatar</button>
+        </div>
+        <div class="reward-item available">
+          <div class="reward-icon">⚡</div>
+          <div class="reward-info">
+            <div class="reward-name">Prioridade em Pedidos</div>
+            <div class="reward-pts">1.000 XP</div>
+          </div>
+          <button class="reward-btn">Resgatar</button>
+        </div>
+        <div class="reward-item locked">
+          <div class="reward-icon">🏅</div>
+          <div class="reward-info">
+            <div class="reward-name">Destaque no Jornal Municipal</div>
+            <div class="reward-pts">3.000 XP necessários</div>
+          </div>
+          <button class="reward-btn locked-btn" disabled>Bloqueado</button>
+        </div>
+        <div class="reward-item locked">
+          <div class="reward-icon">🎟️</div>
+          <div class="reward-info">
+            <div class="reward-name">Convite para Reunião Municipal</div>
+            <div class="reward-pts">5.000 XP necessários</div>
+          </div>
+          <button class="reward-btn locked-btn" disabled>Bloqueado</button>
         </div>
       </div>
     </div>
@@ -332,23 +440,23 @@
         <img src="assets/logoSemFundo.png" alt="CivicPulse" />
         <span>CivicPulse</span>
       </div>
-      <p class="footer-desc">Plataforma de Inteligência Urbana e Participação Cívica. Aproximamos cidadãos e municípios para construir cidades mais justas e transparentes.</p>
+      <p class="footer-desc">Plataforma de Inteligência Urbana e Participação Cívica. Ligamos cidadãos e municípios através de IA para construir cidades mais justas e transparentes.</p>
     </div>
 
     <div class="footer-col">
       <h4>Plataforma</h4>
       <ul>
         <li><a href="#how">Como Funciona</a></li>
-        <li><a href="#explore">Mapa de Ocorrências</a></li>
+        <li><a href="#explore">Explorar Ocorrências</a></li>
         <li><a href="#communities">Comunidades</a></li>
-        <li><a href="#jornal">Jornal da Cidade</a></li>
+        <li><a href="#gamification">Recompensas</a></li>
       </ul>
     </div>
 
     <div class="footer-col">
       <h4>Municípios</h4>
       <ul>
-        <li><a href="#">Portal de Gestão</a></li>
+        <li><a href="#">Portal de Gestão ERP</a></li>
         <li><a href="#">Dashboard Analytics</a></li>
         <li><a href="#">API Integração</a></li>
         <li><a href="#">Solicitar Demo</a></li>
@@ -376,60 +484,157 @@
 </footer>
 
 <!-- ══════════════════════════════════════════
-     MODAL – Nova Contribuição
+     MODAL — WIZARD DE 5 PASSOS
 ══════════════════════════════════════════ -->
 <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
   <div class="modal" id="modal">
+
     <div class="modal-header">
-      <h3>📍 Nova Contribuição</h3>
+      <div class="modal-header-text">
+        <div class="modal-step-indicator" id="stepIndicator">Passo 1 de 5</div>
+        <h3 id="modalTitle">📎 Partilhe o Problema</h3>
+      </div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
+
+    <div class="modal-progress-bar">
+      <div class="modal-progress-fill" id="progressFill" style="width:20%"></div>
+    </div>
+
     <div class="modal-body">
-      <div class="modal-steps">
-        <div class="modal-step-dot active"></div>
-        <div class="modal-step-dot active"></div>
-        <div class="modal-step-dot"></div>
-        <div class="modal-step-dot"></div>
+
+      <!-- ── STEP 1: Upload ── -->
+      <div class="mstep" id="mstep-1">
+        <div class="upload-zone" id="uploadZone" onclick="simulateUpload()">
+          <div class="upload-icon">📎</div>
+          <div class="upload-title">Arraste uma foto, vídeo ou documento</div>
+          <div class="upload-sub">ou clique para selecionar</div>
+          <div class="upload-formats">JPG · PNG · MP4 · PDF &nbsp;•&nbsp; Máx. 50 MB</div>
+        </div>
+        <div class="upload-preview hidden" id="uploadPreview">
+          <div class="preview-img">🖼️</div>
+          <div class="preview-info">
+            <div class="preview-name">foto_problema.jpg</div>
+            <div class="preview-size">2.4 MB · Pronto para analisar</div>
+          </div>
+          <span class="preview-check">✓</span>
+        </div>
+        <div class="divider-or"><span>ou</span></div>
+        <div class="form-group">
+          <label>Descreva o problema em texto</label>
+          <textarea id="step1Text" rows="3" placeholder="Ex: Há um buraco grande no passeio da Rua António Sérgio junto ao nº 45..." oninput="onTextInput()"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+          <button class="btn-primary" id="step1Btn" onclick="nextStep()" disabled>
+            Analisar com IA &nbsp;→
+          </button>
+        </div>
       </div>
 
-      <div class="map-placeholder">
-        <span class="map-icon">🗺️</span>
-        <span>Clique no mapa para selecionar a localização do problema</span>
-        <small style="color:var(--gray-400);">ou permita acesso à sua localização</small>
+      <!-- ── STEP 2: Processamento IA ── -->
+      <div class="mstep hidden" id="mstep-2">
+        <div class="processing-wrap">
+          <div class="processing-icon">🤖</div>
+          <div class="processing-title">IA CivicPulse a Analisar...</div>
+          <div class="processing-steps" id="procSteps">
+            <div class="proc-step" id="proc1">🔍 A identificar localização...</div>
+            <div class="proc-step" id="proc2">🏷️ A classificar tipo de problema...</div>
+            <div class="proc-step" id="proc3">🔗 A verificar ocorrências similares...</div>
+            <div class="proc-step" id="proc4">✍️ A preencher formulário automaticamente...</div>
+          </div>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Tipo de Ocorrência</label>
-        <select>
-          <option value="">Selecione uma categoria...</option>
-          <option>🚦 Sinalização e Trânsito</option>
-          <option>💡 Iluminação Pública</option>
-          <option>🛣️ Pavimento e Vias</option>
-          <option>🌳 Espaços Verdes</option>
-          <option>🗑️ Limpeza Urbana</option>
-          <option>♿ Acessibilidade</option>
-          <option>🔧 Outras Infraestruturas</option>
-        </select>
+      <!-- ── STEP 3: Diálogo IA ── -->
+      <div class="mstep hidden" id="mstep-3">
+        <div class="ai-prefilled">
+          <div class="prefilled-label">✨ Preenchido automaticamente pela IA</div>
+          <div class="prefilled-field">
+            <span class="pf-label">Categoria</span>
+            <span class="pf-value">🛣️ Pavimento Degradado</span>
+          </div>
+          <div class="prefilled-field">
+            <span class="pf-label">Localização</span>
+            <span class="pf-value">📍 Rua António Sérgio, 45</span>
+          </div>
+          <div class="prefilled-field">
+            <span class="pf-label">Descrição</span>
+            <span class="pf-value">Buraco de aprox. 40cm no passeio, junto ao poste de luz</span>
+          </div>
+          <div class="prefilled-field">
+            <span class="pf-label">Prioridade</span>
+            <span class="pf-value warning">⚠️ Média (a confirmar)</span>
+          </div>
+        </div>
+        <div class="chat-session" id="chatSession">
+          <div class="chat-msg ai-msg">
+            <div class="chat-avatar">🤖</div>
+            <div class="chat-bubble-msg">Confirmei os detalhes com base na sua foto. Existe alguma situação de perigo imediato neste local?</div>
+          </div>
+        </div>
+        <div class="quick-replies" id="quickReplies">
+          <button class="quick-reply-btn" onclick="quickReply('urgent')">⚠️ Sim, é urgente</button>
+          <button class="quick-reply-btn" onclick="quickReply('gradual')">📋 Não, é gradual</button>
+        </div>
+        <div class="modal-footer hidden" id="step3Footer">
+          <button class="btn-secondary" onclick="prevStep()">← Voltar</button>
+          <button class="btn-primary" onclick="nextStep()">Ver Contexto →</button>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Descrição do Problema</label>
-        <textarea rows="3" placeholder="Descreva o problema com o máximo de detalhe possível..."></textarea>
+      <!-- ── STEP 4: Contexto + Comunidade ── -->
+      <div class="mstep hidden" id="mstep-4">
+        <div class="context-card">
+          <div class="context-icon">🔗</div>
+          <div class="context-text">
+            <div class="context-title">A IA encontrou 8 ocorrências similares na sua zona</div>
+            <div class="context-desc">A sua contribuição foi agregada a um cluster existente, subindo a prioridade para <strong>Alta</strong>. Serão tratadas em conjunto pelo município.</div>
+          </div>
+        </div>
+        <div class="community-suggest">
+          <div class="cs-header">
+            <div class="cs-icon">👥</div>
+            <div>
+              <div class="cs-title">Comunidade ativa encontrada</div>
+              <div class="cs-name">Passeios da Baixa — 47 membros</div>
+            </div>
+            <span class="cs-badge">Ativa</span>
+          </div>
+          <div class="cs-desc">Grupo de munícipes que reporta e acompanha o estado dos passeios no centro. Receba atualizações e colabore na solução.</div>
+          <div class="cs-actions">
+            <button class="btn-primary" id="joinBtn" onclick="joinCommunity()">👥 Entrar na Comunidade</button>
+            <button class="btn-secondary" onclick="nextStep()">Continuar sem entrar</button>
+          </div>
+        </div>
       </div>
 
-      <div class="chat-bubble">
-        🤖 <strong>IA CivicPulse:</strong> Com base na sua descrição, classifiquei esta ocorrência como <strong>Pavimento Degradado – Prioridade Média</strong>. Existem 8 ocorrências semelhantes na mesma zona. Deseja juntar-se à comunidade existente?
+      <!-- ── STEP 5: Confirmação ERP ── -->
+      <div class="mstep hidden" id="mstep-5">
+        <div class="confirm-wrap">
+          <div class="confirm-check">✓</div>
+          <div class="confirm-title">Enviado para o ERP Municipal!</div>
+          <div class="confirm-ref">Referência: <strong>#OC-2026-4821</strong></div>
+          <div class="confirm-dept">Encaminhado ao Departamento de Obras e Infraestruturas</div>
+          <div class="confirm-timeline">
+            <div class="tl-step tl-done">✓ Recebido</div>
+            <div class="tl-arrow">→</div>
+            <div class="tl-step tl-active">⚙️ Em Análise</div>
+            <div class="tl-arrow">→</div>
+            <div class="tl-step">🔧 Em Intervenção</div>
+            <div class="tl-arrow">→</div>
+            <div class="tl-step">✅ Resolvido</div>
+          </div>
+          <div class="confirm-xp">
+            <div class="xp-gained">+150 XP</div>
+            <div class="xp-desc">Contribuição registada! Continue a participar para desbloquear recompensas.</div>
+          </div>
+        </div>
+        <div class="modal-footer" style="justify-content:center;">
+          <button class="btn-primary" onclick="closeModal()">Fechar</button>
+        </div>
       </div>
 
-      <div class="modal-footer">
-        <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
-        <button class="btn-primary">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" width="15" height="15">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-          </svg>
-          Submeter Ocorrência
-        </button>
-      </div>
     </div>
   </div>
 </div>
