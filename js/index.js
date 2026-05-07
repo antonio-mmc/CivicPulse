@@ -465,14 +465,12 @@ document.addEventListener('click', () => closeUserDropdown());
 
 /* ── Gamification sync ── */
 function updateGamification(loggedIn) {
-  const banner    = document.getElementById('gamiUserBanner');
   const guest     = document.getElementById('gamiGuest');
   const grid      = document.getElementById('gamiGrid');
   const levelCard = document.querySelector('.level-card');
   const xpFill    = document.querySelector('.level-card .xp-fill');
 
   if (loggedIn) {
-    banner?.classList.remove('hidden');
     guest?.classList.add('hidden');
     grid?.classList.remove('hidden');
     levelCard?.classList.add('user-active');
@@ -484,7 +482,6 @@ function updateGamification(loggedIn) {
       }, 400);
     }
   } else {
-    banner?.classList.add('hidden');
     guest?.classList.remove('hidden');
     grid?.classList.add('hidden');
     levelCard?.classList.remove('user-active');
