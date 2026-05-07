@@ -215,7 +215,7 @@ function simulateUpload() {
   setTimeout(() => {
     const fills = {
       fieldCategoria: 'pavimento',
-      fieldMorada:    'Rua António Sérgio, 45, Lisboa',
+      fieldMorada:    'Rua de Couros, 18, Guimarães',
       fieldDescricao: 'Buraco de aproximadamente 40 cm no passeio junto ao poste de luz nº 12. Representa risco de queda, especialmente para idosos e crianças.',
       fieldData:      new Date().toISOString().split('T')[0]
     };
@@ -251,6 +251,14 @@ function selectChannel(ch) {
   } else {
     btn.style.display = 'none';
   }
+}
+
+function filterJornal(cat, btn) {
+  document.querySelectorAll('.jfilter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('[data-cat]').forEach(card => {
+    card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+  });
 }
 
 function copyAddress(text, btn) {
@@ -433,7 +441,7 @@ const USER = {
   name: 'António Silva',
   firstName: 'António',
   initials: 'A',
-  email: 'antonio@civicpulse.pt',
+  email: 'antonio@cm-guimaraes.pt',
   level: 3,
   levelName: 'Cidadão Ativo',
   xp: 2340,

@@ -757,13 +757,20 @@ nav {
 .jornal { padding: 90px 40px; background: var(--gray-50); }
 .jornal-header { text-align: center; margin-bottom: 56px; }
 
-.jornal-grid {
+/* Bento layout — replaces the old equal 3-col grid */
+.jornal-bento {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1.65fr 1fr;
   gap: 24px;
   max-width: 1100px;
   margin: 0 auto;
 }
+.jornal-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.jornal-sidebar .jornal-card { flex: 1; }
 .jornal-card {
   background: var(--white);
   border: 1px solid var(--gray-200);
@@ -800,20 +807,21 @@ nav {
   line-height: 1.6;
   padding: 0 20px 20px;
 }
-.before-after { display: grid; grid-template-columns: 1fr 1fr; }
+.before-after { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
 .ba-panel {
   height: 110px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  font-size: .75rem;
-  font-weight: 700;
-  gap: 6px;
+  gap: 5px;
 }
 .ba-before { background: #fef2f2; color: #991b1b; }
 .ba-after  { background: #f0fdf4; color: #166534; }
 .ba-icon   { font-size: 2rem; }
+.ba-label  { font-size: .78rem; font-weight: 700; }
+.ba-sub    { font-size: .68rem; font-weight: 400; opacity: .85; }
+.ba-arrow  { font-size: 1.4rem; color: var(--gray-300); padding: 0 10px; text-align: center; }
 .stats-panel { padding: 20px; }
 .stat-row {
   display: flex;
@@ -844,6 +852,201 @@ nav {
 }
 .trend-up   { background: #d1fae5; color: #065f46; }
 .trend-down { background: #dbeafe; color: #1e40af; }
+
+/* ── Jornal header extras ── */
+.jornal-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 4px;
+}
+.jornal-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .72rem;
+  font-weight: 600;
+  color: #059669;
+  background: #d1fae5;
+  padding: 4px 12px;
+  border-radius: 50px;
+}
+.live-dot {
+  width: 7px;
+  height: 7px;
+  background: #059669;
+  border-radius: 50%;
+  animation: livePulse 1.6s ease-in-out infinite;
+}
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .45; transform: scale(.75); }
+}
+.jornal-filters {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+.jfilter {
+  padding: 7px 18px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 50px;
+  background: var(--white);
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all .18s;
+}
+.jfilter.active, .jfilter:hover {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: var(--white);
+}
+
+/* ── Featured article card ── */
+.jornal-featured {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
+  display: flex;
+  flex-direction: column;
+}
+.jornal-featured:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(15,45,110,.14);
+}
+.jfeat-tag-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 24px 0;
+}
+.jornal-date {
+  font-size: .72rem;
+  color: var(--gray-400);
+  font-weight: 500;
+}
+.jfeat-title {
+  font-size: 1.22rem;
+  font-weight: 800;
+  line-height: 1.35;
+  padding: 14px 24px 16px;
+  color: var(--gray-900);
+}
+.jfeat-desc {
+  font-size: .865rem;
+  color: var(--gray-600);
+  line-height: 1.65;
+  padding: 0 24px 20px;
+  flex: 1;
+}
+.jfeat-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-top: 1px solid var(--gray-100);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.jfeat-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.jfeat-tag-sm {
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  background: var(--gray-100);
+  padding: 3px 10px;
+  border-radius: 50px;
+}
+.jornal-cta-btn {
+  padding: 8px 18px;
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .18s;
+  white-space: nowrap;
+}
+.jornal-cta-btn:hover { opacity: .88; }
+
+/* ── Featured impact strip ── */
+.jfeat-impact {
+  display: flex;
+  align-items: center;
+  margin: 0 24px 20px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-100);
+  border-radius: 10px;
+  padding: 16px 20px;
+  gap: 0;
+}
+.jimpact-item {
+  flex: 1;
+  text-align: center;
+}
+.jimpact-val {
+  font-size: 1.2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+  margin-bottom: 3px;
+}
+.jimpact-key {
+  font-size: .7rem;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+.jimpact-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--gray-200);
+  flex-shrink: 0;
+}
+
+/* ── Sidebar card header row (tag + date side by side) ── */
+.jcard-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+/* ── Jornal card footer ── */
+.jornal-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px 16px;
+  border-top: 1px solid var(--gray-100);
+  margin-top: 8px;
+  gap: 10px;
+}
+.jcard-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.jornal-cta-link {
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity .18s;
+  white-space: nowrap;
+}
+.jornal-cta-link:hover { opacity: .7; }
 
 /* ══════════════════════════════════════════
    GAMIFICAÇÃO
@@ -1658,7 +1861,7 @@ footer {
 }
 
 @media (max-width: 900px) {
-  .jornal-grid { grid-template-columns: 1fr; }
+  .jornal-bento { grid-template-columns: 1fr; }
   .gami-grid   { grid-template-columns: 1fr; }
   .steps-3col  { grid-template-columns: 1fr; gap: 28px; }
   .steps-3col::before { display: none; }

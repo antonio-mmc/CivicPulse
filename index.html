@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CivicPulse – Plataforma de Inteligência Urbana</title>
+  <title>CivicPulse — Câmara Municipal de Guimarães</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
@@ -60,8 +60,8 @@
     <div class="hero-content">
       <h1>Ouvir,&thinsp;Analisar,&thinsp;Agir,<br><em>Transformar.</em></h1>
 
-      <p>Reporte com foto ou texto, dialogue com a IA e veja as suas contribuições chegarem ao município enriquecidas.
-        Transparência real entre cidadão e câmara.</p>
+      <p>Reporte com foto ou texto, dialogue com a IA e veja as suas contribuições chegarem à Câmara Municipal de Guimarães enriquecidas.
+        Transparência real entre vimaranense e câmara.</p>
 
       <div class="hero-ctas">
         <button class="btn-hero btn-hero-main" onclick="openModal()">
@@ -175,8 +175,8 @@
     <div class="text-center reveal" style="margin-bottom:40px;">
       <span class="section-label">Consultar</span>
       <div class="section-divider"></div>
-      <h2 class="section-title">O Que Está a Acontecer na Sua Cidade</h2>
-      <p class="section-sub">Explore ocorrências ativas, obras planeadas e comunidades na sua zona.</p>
+      <h2 class="section-title">O Que Está a Acontecer em Guimarães</h2>
+      <p class="section-sub">Explore ocorrências ativas, obras planeadas e comunidades em Guimarães.</p>
     </div>
 
     <div class="search-wrap">
@@ -187,7 +187,7 @@
             d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
         </svg>
         <input type="text"
-          placeholder="Pesquise por rua, tipo de problema ou comunidade (ex: Iluminação na Praça Central)" />
+          placeholder="Pesquise por rua, tipo de problema (ex: Iluminação no Largo do Toural, Guimarães)" />
         <button class="search-btn">Pesquisar</button>
       </div>
     </div>
@@ -206,7 +206,7 @@
         <div class="card-img">🚶</div>
         <div class="card-body">
           <span class="card-badge tag-orange">⚠️ Em Análise</span>
-          <div class="card-title">Falta de passadeira na Escola Básica da Fontinha</div>
+          <div class="card-title">Falta de passadeira junto à EB 2,3 de Urgeses — risco diário para alunos</div>
           <div class="progress-label"><span>Progresso</span><span>35%</span></div>
           <div class="progress-bar">
             <div class="progress-fill" style="width:35%"></div>
@@ -223,7 +223,7 @@
         <div class="card-img">💡</div>
         <div class="card-body">
           <span class="card-badge tag-indigo">🔧 Em Resolução</span>
-          <div class="card-title">Iluminação pública deficiente na Avenida do Parque</div>
+          <div class="card-title">Iluminação pública deficiente na Rua de Couros — zona histórica às escuras</div>
           <div class="progress-label"><span>Progresso</span><span>72%</span></div>
           <div class="progress-bar">
             <div class="progress-fill" style="width:72%"></div>
@@ -240,7 +240,7 @@
         <div class="card-img">🌳</div>
         <div class="card-body">
           <span class="card-badge tag-emerald">✅ Aprovado</span>
-          <div class="card-title">Construção de parque infantil na Quinta das Acácias</div>
+          <div class="card-title">Construção de parque infantil na Alameda da Resistência aprovada</div>
           <div class="progress-label"><span>Progresso</span><span>90%</span></div>
           <div class="progress-bar">
             <div class="progress-fill" style="width:90%"></div>
@@ -262,81 +262,127 @@
     <div class="jornal-header reveal">
       <span class="section-label">Transparência</span>
       <div class="section-divider"></div>
-      <h2 class="section-title">Jornal da Cidade — Resultados Reais</h2>
-      <p class="section-sub">Veja como as contribuições dos munícipes se transformam em obras e melhorias concretas.</p>
+      <div class="jornal-title-row">
+        <h2 class="section-title">Jornal de Guimarães</h2>
+        <span class="jornal-live"><span class="live-dot"></span>Atualizado agora</span>
+      </div>
+      <p class="section-sub">Veja como as contribuições dos vimaranenses se transformam em obras e melhorias concretas.</p>
+      <div class="jornal-filters">
+        <button class="jfilter active" onclick="filterJornal('all', this)">Todas</button>
+        <button class="jfilter" onclick="filterJornal('obras', this)">🏗️ Obras</button>
+        <button class="jfilter" onclick="filterJornal('comunidade', this)">👥 Comunidade</button>
+        <button class="jfilter" onclick="filterJornal('desempenho', this)">📊 Desempenho</button>
+      </div>
     </div>
 
-    <div class="jornal-grid">
+    <div class="jornal-bento">
 
-      <div class="jornal-card reveal reveal-delay-1">
-        <div class="jornal-card-header">
+      <!-- Artigo em destaque (esquerda) -->
+      <div class="jornal-featured reveal reveal-delay-1" data-cat="obras">
+        <div class="jfeat-tag-row">
           <span class="article-tag tag-orange">🏗️ Obra Concluída</span>
-          <div class="jornal-title">15 contribuições agrupadas pela IA resultaram na requalificação da rede elétrica de
-            Benfica</div>
+          <span class="jornal-date">12 Abr 2026</span>
         </div>
+        <h3 class="jfeat-title">28 contribuições levaram à requalificação do passeio da Rua de Couros no centro histórico</h3>
         <div class="before-after">
           <div class="ba-panel ba-before">
             <span class="ba-icon">⚠️</span>
-            <span>Antes</span>
-            <span style="font-size:.7rem;font-weight:400;">Rede degradada</span>
+            <span class="ba-label">Antes</span>
+            <span class="ba-sub">Calçada degradada</span>
           </div>
+          <div class="ba-arrow">→</div>
           <div class="ba-panel ba-after">
-            <span class="ba-icon">✨</span>
-            <span>Depois</span>
-            <span style="font-size:.7rem;font-weight:400;">Totalmente renovada</span>
+            <span class="ba-icon">✅</span>
+            <span class="ba-label">Depois</span>
+            <span class="ba-sub">Totalmente requalificada</span>
           </div>
         </div>
-        <p class="jornal-desc">A IA agrupou 15 ocorrências individuais e submeteu como projeto prioritário ao ERP
-          municipal, resultando numa intervenção de €240.000.</p>
-      </div>
-
-      <div class="jornal-card reveal reveal-delay-2">
-        <div class="jornal-card-header">
-          <span class="article-tag tag-indigo">📊 Desempenho Municipal</span>
-          <div class="jornal-title">Impacto CivicPulse — Abril 2026</div>
+        <p class="jfeat-desc">A IA agrupou 28 ocorrências individuais reportadas por vimaranenses ao longo de 4 meses e submeteu-as como projeto prioritário à Câmara Municipal de Guimarães. A intervenção de €180.000 requalificou 340 metros de calçada na Rua de Couros, preservando o carácter histórico da zona classificada pela UNESCO e eliminando riscos de queda para moradores e turistas.</p>
+        <div class="jfeat-impact">
+          <div class="jimpact-item">
+            <div class="jimpact-val">340m</div>
+            <div class="jimpact-key">de calçada requalificada</div>
+          </div>
+          <div class="jimpact-divider"></div>
+          <div class="jimpact-item">
+            <div class="jimpact-val">4 meses</div>
+            <div class="jimpact-key">do relatório à obra</div>
+          </div>
+          <div class="jimpact-divider"></div>
+          <div class="jimpact-item">
+            <div class="jimpact-val">94%</div>
+            <div class="jimpact-key">satisfação dos residentes</div>
+          </div>
         </div>
-        <div class="stats-panel">
-          <div class="stat-row">
-            <span class="stat-label">Tempo médio de resposta</span>
-            <div><span class="stat-value">4.2d</span><span class="stat-trend trend-down">↓ 40%</span></div>
+        <div class="jfeat-footer">
+          <div class="jfeat-meta">
+            <span class="jfeat-tag-sm">🏛️ Centro Histórico</span>
+            <span class="jfeat-tag-sm">💰 €180.000</span>
+            <span class="jfeat-tag-sm">28 contribuições</span>
           </div>
-          <div class="stat-row">
-            <span class="stat-label">Ocorrências resolvidas</span>
-            <div><span class="stat-value">318</span><span class="stat-trend trend-up">↑ 28%</span></div>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Satisfação dos munícipes</span>
-            <div><span class="stat-value">87%</span><span class="stat-trend trend-up">↑ 12%</span></div>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Contribuições processadas por IA</span>
-            <div><span class="stat-value">1.240</span><span class="stat-trend trend-up">↑ 94%</span></div>
-          </div>
+          <button class="jornal-cta-btn">Ver detalhes →</button>
         </div>
       </div>
 
-      <div class="jornal-card reveal reveal-delay-3">
-        <div class="jornal-card-header">
-          <span class="article-tag tag-emerald">🐾 Comunidade em Ação</span>
-          <div class="jornal-title">Parque Canino na Quinta da Piedade aprovado após 340 contribuições</div>
-        </div>
-        <p class="jornal-desc" style="padding-top:12px;">
-          A IA agrupou 340 contribuições individuais, criou uma comunidade e encaminhou um relatório consolidado ao
-          município. Aprovação em 3 meses.
-        </p>
-        <div style="padding: 0 20px 20px;">
-          <div class="progress-label"><span>Fase de Projeto</span><span>60%</span></div>
-          <div class="progress-bar">
-            <div class="progress-fill" style="width:60%"></div>
-          </div>
-          <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
-            <span class="float-tag tag-green">🐕 340 Contribuições</span>
-            <span class="float-tag tag-blue">📅 Jun 2026</span>
-            <span class="float-tag tag-purple">800m²</span>
-          </div>
-        </div>
-      </div>
+      <!-- Coluna lateral direita -->
+      <div class="jornal-sidebar">
 
+        <!-- Card de desempenho -->
+        <div class="jornal-card reveal reveal-delay-2" data-cat="desempenho">
+          <div class="jornal-card-header">
+            <div class="jcard-header-row">
+              <span class="article-tag tag-indigo">📊 Desempenho Municipal</span>
+              <span class="jornal-date">Maio 2026</span>
+            </div>
+            <div class="jornal-title">CivicPulse em Guimarães — Maio 2026</div>
+          </div>
+          <div class="stats-panel">
+            <div class="stat-row">
+              <span class="stat-label">Tempo médio de resposta</span>
+              <div><span class="stat-value">4.2d</span><span class="stat-trend trend-down">↓ 40%</span></div>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Ocorrências resolvidas</span>
+              <div><span class="stat-value">318</span><span class="stat-trend trend-up">↑ 28%</span></div>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Satisfação dos vimaranenses</span>
+              <div><span class="stat-value">87%</span><span class="stat-trend trend-up">↑ 12%</span></div>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Contribuições por IA</span>
+              <div><span class="stat-value">1.240</span><span class="stat-trend trend-up">↑ 94%</span></div>
+            </div>
+          </div>
+          <div class="jornal-card-footer">
+            <button class="jornal-cta-link">Ver relatório completo →</button>
+          </div>
+        </div>
+
+        <!-- Card de comunidade -->
+        <div class="jornal-card reveal reveal-delay-3" data-cat="comunidade">
+          <div class="jornal-card-header">
+            <div class="jcard-header-row">
+              <span class="article-tag tag-emerald">🌳 Comunidade em Ação</span>
+              <span class="jornal-date">28 Mar 2026</span>
+            </div>
+            <div class="jornal-title">Parque das Hortas renovado após 156 contribuições dos vimaranenses</div>
+          </div>
+          <p class="jornal-desc">A IA agrupou 156 contribuições, criou uma comunidade e encaminhou um relatório consolidado à CMG. Aprovação em 2 meses.</p>
+          <div style="padding:0 20px 4px">
+            <div class="progress-label"><span>Fase de Projeto</span><span>60%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+          </div>
+          <div class="jornal-card-footer">
+            <div class="jcard-tags">
+              <span class="float-tag tag-green">🌳 156 Contribuições</span>
+              <span class="float-tag tag-blue">📅 Jun 2026</span>
+            </div>
+            <button class="jornal-cta-link">Ver detalhes →</button>
+          </div>
+        </div>
+
+      </div>
     </div>
   </section>
 
@@ -348,7 +394,7 @@
       <span class="section-label">Gamificação</span>
       <div class="section-divider"></div>
       <h2 class="section-title">Cada Contribuição Tem Valor</h2>
-      <p class="section-sub">Participe, acumule experiência e desbloqueie recompensas reais pela sua cidade.</p>
+      <p class="section-sub">Participe, acumule experiência e desbloqueie recompensas reais por Guimarães.</p>
     </div>
 
     <!-- Banner pessoal — aparece após login -->
@@ -515,8 +561,7 @@
           <img src="assets/logoSemFundo.png" alt="CivicPulse" />
           <span>CivicPulse</span>
         </div>
-        <p class="footer-desc">Plataforma de Inteligência Urbana e Participação Cívica. Ligamos cidadãos e municípios
-          através de IA para construir cidades mais justas e transparentes.</p>
+        <p class="footer-desc">Plataforma de Participação Cívica para a Câmara Municipal de Guimarães. Ligamos vimaranenses e município através de IA para construir uma cidade mais justa e transparente.</p>
       </div>
 
       <div class="footer-col">
@@ -551,7 +596,7 @@
     </div>
 
     <div class="footer-bottom">
-      <span class="footer-legal">© 2026 CivicPulse. Todos os direitos reservados. Desenvolvido em Portugal 🇵🇹</span>
+      <span class="footer-legal">© 2026 CivicPulse · Câmara Municipal de Guimarães. Todos os direitos reservados. Desenvolvido em Portugal 🇵🇹</span>
       <div class="footer-seals">
         <span class="seal"><span class="seal-icon">🔒</span> RGPD Compliant</span>
         <span class="seal"><span class="seal-icon">🏙️</span> ISO 37120 Smart Cities</span>
@@ -637,7 +682,7 @@
               </div>
               <div class="contrib-field" id="cf-morada">
                 <label>Localização / Morada</label>
-                <input type="text" id="fieldMorada" placeholder="Ex: Rua António Sérgio, 45, Lisboa" oninput="onFormInput()" />
+                <input type="text" id="fieldMorada" placeholder="Ex: Rua de Couros, 12, Guimarães" oninput="onFormInput()" />
               </div>
               <div class="contrib-field" id="cf-descricao">
                 <label>Descrição <span class="field-required">*</span></label>
@@ -729,7 +774,7 @@
               <div class="cs-icon">👥</div>
               <div>
                 <div class="cs-title">Comunidade ativa encontrada</div>
-                <div class="cs-name">Passeios da Baixa — 47 membros</div>
+                <div class="cs-name">Ruas do Centro Histórico — 47 membros</div>
               </div>
               <span class="cs-badge">Ativa</span>
             </div>
