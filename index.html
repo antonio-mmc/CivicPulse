@@ -581,51 +581,114 @@
 
         <!-- ── STEP 1: Formulário + Upload ── -->
         <div class="mstep" id="mstep-1">
-          <div class="upload-zone" id="uploadZone" onclick="simulateUpload()">
-            <div class="upload-icon">📷</div>
-            <div class="upload-title">Adicionar foto, vídeo ou documento</div>
-            <div class="upload-sub">A IA analisa e preenche os campos automaticamente</div>
-            <div class="upload-formats">JPG · PNG · MP4 · PDF &nbsp;•&nbsp; Máx. 50 MB</div>
-          </div>
-          <div class="upload-preview hidden" id="uploadPreview">
-            <div class="preview-img">🖼️</div>
-            <div class="preview-info">
-              <div class="preview-name">foto_problema.jpg</div>
-              <div class="preview-size" id="aiSuggestStatus">⏳ IA a analisar a imagem...</div>
-            </div>
-            <span class="preview-check">✓</span>
+
+          <!-- Canal de submissão -->
+          <div class="channel-tabs">
+            <button class="channel-tab active" id="chtab-web" onclick="selectChannel('web')">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253M3 12a8.959 8.959 0 0 0 .284 2.253" /></svg>
+              Web
+            </button>
+            <button class="channel-tab" id="chtab-email" onclick="selectChannel('email')">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
+              Email
+            </button>
+            <button class="channel-tab" id="chtab-sms" onclick="selectChannel('sms')">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 8.25h3m-3 3.75h3m-3 3.75h3" /></svg>
+              SMS / Telefone
+            </button>
           </div>
 
-          <div class="contrib-form">
-            <div class="contrib-row">
-              <div class="contrib-field" id="cf-categoria">
-                <label>Categoria</label>
-                <select id="fieldCategoria" onchange="onFormInput()">
-                  <option value="">Selecionar...</option>
-                  <option value="pavimento">🛣️ Pavimento / Passeios</option>
-                  <option value="iluminacao">💡 Iluminação Pública</option>
-                  <option value="saneamento">🚿 Saneamento / Esgotos</option>
-                  <option value="residuos">🗑️ Recolha de Resíduos</option>
-                  <option value="obras">🏗️ Obras e Infraestrutura</option>
-                  <option value="verde">🌳 Espaços Verdes</option>
-                  <option value="seguranca">🚦 Segurança Rodoviária</option>
-                  <option value="outro">📋 Outro</option>
-                </select>
+          <!-- ── Canal: Web ── -->
+          <div class="channel-panel" id="chpanel-web">
+            <div class="upload-zone" id="uploadZone" onclick="simulateUpload()">
+              <div class="upload-icon">📷</div>
+              <div class="upload-title">Adicionar foto, vídeo ou documento</div>
+              <div class="upload-sub">A IA analisa e preenche os campos automaticamente</div>
+              <div class="upload-formats">JPG · PNG · MP4 · PDF &nbsp;•&nbsp; Máx. 50 MB</div>
+            </div>
+            <div class="upload-preview hidden" id="uploadPreview">
+              <div class="preview-img">🖼️</div>
+              <div class="preview-info">
+                <div class="preview-name">foto_problema.jpg</div>
+                <div class="preview-size" id="aiSuggestStatus">⏳ IA a analisar a imagem...</div>
               </div>
-              <div class="contrib-field" id="cf-data">
-                <label>Data da Ocorrência</label>
-                <input type="date" id="fieldData" onchange="onFormInput()" />
+              <span class="preview-check">✓</span>
+            </div>
+            <div class="contrib-form">
+              <div class="contrib-row">
+                <div class="contrib-field" id="cf-categoria">
+                  <label>Categoria</label>
+                  <select id="fieldCategoria" onchange="onFormInput()">
+                    <option value="">Selecionar...</option>
+                    <option value="pavimento">🛣️ Pavimento / Passeios</option>
+                    <option value="iluminacao">💡 Iluminação Pública</option>
+                    <option value="saneamento">🚿 Saneamento / Esgotos</option>
+                    <option value="residuos">🗑️ Recolha de Resíduos</option>
+                    <option value="obras">🏗️ Obras e Infraestrutura</option>
+                    <option value="verde">🌳 Espaços Verdes</option>
+                    <option value="seguranca">🚦 Segurança Rodoviária</option>
+                    <option value="outro">📋 Outro</option>
+                  </select>
+                </div>
+                <div class="contrib-field" id="cf-data">
+                  <label>Data da Ocorrência</label>
+                  <input type="date" id="fieldData" onchange="onFormInput()" />
+                </div>
+              </div>
+              <div class="contrib-field" id="cf-morada">
+                <label>Localização / Morada</label>
+                <input type="text" id="fieldMorada" placeholder="Ex: Rua António Sérgio, 45, Lisboa" oninput="onFormInput()" />
+              </div>
+              <div class="contrib-field" id="cf-descricao">
+                <label>Descrição <span class="field-required">*</span></label>
+                <textarea id="fieldDescricao" rows="3"
+                  placeholder="Descreva o problema com o máximo de detalhe possível..."
+                  oninput="onFormInput()"></textarea>
               </div>
             </div>
-            <div class="contrib-field" id="cf-morada">
-              <label>Localização / Morada</label>
-              <input type="text" id="fieldMorada" placeholder="Ex: Rua António Sérgio, 45, Lisboa" oninput="onFormInput()" />
+          </div>
+
+          <!-- ── Canal: Email ── -->
+          <div class="channel-panel hidden" id="chpanel-email">
+            <div class="channel-info">
+              <div class="chinfo-address">
+                <span class="chinfo-addr-text">contribuicoes@civicpulse.pt</span>
+                <button class="chinfo-copy" onclick="copyAddress('contribuicoes@civicpulse.pt', this)">Copiar</button>
+              </div>
+              <div class="chinfo-steps">
+                <div class="chinfo-step"><span class="chinfo-num">1</span><span>No <strong>assunto</strong>, indique a localização — ex: <em>Rua do Ouro, 12 Lisboa</em></span></div>
+                <div class="chinfo-step"><span class="chinfo-num">2</span><span>No <strong>corpo</strong>, descreva o problema com o máximo detalhe possível</span></div>
+                <div class="chinfo-step"><span class="chinfo-num">3</span><span>Anexe <strong>fotos ou vídeos</strong> — a IA analisa e regista automaticamente</span></div>
+                <div class="chinfo-step"><span class="chinfo-num">4</span><span>Receberá uma confirmação com o <strong>número de referência</strong> em minutos</span></div>
+              </div>
+              <a class="btn-primary chinfo-cta" href="mailto:contribuicoes@civicpulse.pt?subject=Contribuição%20—%20" onclick="closeModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
+                Abrir Cliente de Email
+              </a>
             </div>
-            <div class="contrib-field" id="cf-descricao">
-              <label>Descrição <span class="field-required">*</span></label>
-              <textarea id="fieldDescricao" rows="3"
-                placeholder="Descreva o problema com o máximo de detalhe possível..."
-                oninput="onFormInput()"></textarea>
+          </div>
+
+          <!-- ── Canal: SMS / Telefone ── -->
+          <div class="channel-panel hidden" id="chpanel-sms">
+            <div class="channel-info">
+              <div class="chinfo-numbers">
+                <div class="chinfo-number">
+                  <div class="chinfo-num-label">SMS / MMS</div>
+                  <div class="chinfo-num-value">3535</div>
+                  <div class="chinfo-num-sub">Serviço gratuito</div>
+                </div>
+                <div class="chinfo-number">
+                  <div class="chinfo-num-label">Linha de Apoio</div>
+                  <div class="chinfo-num-value">800 200 100</div>
+                  <div class="chinfo-num-sub">Dias úteis · 9h–18h</div>
+                </div>
+              </div>
+              <div class="chinfo-steps">
+                <div class="chinfo-step"><span class="chinfo-num">1</span><span>Envie uma <strong>SMS para 3535</strong> com a localização e descrição breve do problema</span></div>
+                <div class="chinfo-step"><span class="chinfo-num">2</span><span>Para enviar <strong>fotos ou vídeos</strong>, use MMS para o mesmo número</span></div>
+                <div class="chinfo-step"><span class="chinfo-num">3</span><span>A IA processa a mensagem e regista a contribuição <strong>automaticamente</strong></span></div>
+                <div class="chinfo-step"><span class="chinfo-num">4</span><span>Receberá uma <strong>SMS de confirmação</strong> com o número de referência</span></div>
+              </div>
             </div>
           </div>
 

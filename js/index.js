@@ -174,7 +174,8 @@ function resetModal() {
   replyGiven   = false;
   chatMsgCount = 0;
 
-  // Step 1 — upload
+  // Step 1 — canal + upload
+  selectChannel('web');
   document.getElementById('uploadZone').classList.remove('hidden');
   document.getElementById('uploadPreview').classList.add('hidden');
   document.getElementById('step1Btn').disabled = true;
@@ -236,6 +237,29 @@ function onFormInput() {
 }
 
 function onTextInput() { onFormInput(); }
+
+function selectChannel(ch) {
+  ['web','email','sms'].forEach(c => {
+    document.getElementById('chtab-' + c)?.classList.toggle('active', c === ch);
+    document.getElementById('chpanel-' + c)?.classList.toggle('hidden', c !== ch);
+  });
+  const btn = document.getElementById('step1Btn');
+  if (ch === 'web') {
+    btn.textContent = 'Enviar →';
+    btn.disabled = (document.getElementById('fieldDescricao')?.value.trim().length ?? 0) < 5;
+    btn.style.display = '';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+function copyAddress(text, btn) {
+  navigator.clipboard?.writeText(text).then(() => {
+    btn.textContent = 'Copiado ✓';
+    btn.style.background = 'var(--green)';
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.style.background = ''; }, 2000);
+  });
+}
 
 // ── Step 2: AI processing animation ───────────────────────────────────────
 function startProcessing() {
