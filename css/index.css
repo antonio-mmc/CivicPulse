@@ -1241,7 +1241,106 @@ footer {
   border-left-color: var(--green);
 }
 
-/* ── STEP 3: Diálogo IA ── */
+/* ── STEP 1: Contribution form ── */
+.contrib-form { margin-top: 14px; }
+.contrib-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.contrib-field { margin-bottom: 12px; }
+.contrib-field:last-child { margin-bottom: 0; }
+.contrib-field label {
+  display: block;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 5px;
+}
+.field-required { color: var(--red); margin-left: 2px; }
+.contrib-field input,
+.contrib-field select,
+.contrib-field textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 9px;
+  font-size: .875rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--gray-800);
+  background: var(--white);
+  outline: none;
+  transition: border-color .18s, box-shadow .18s;
+}
+.contrib-field input:focus,
+.contrib-field select:focus,
+.contrib-field textarea:focus {
+  border-color: var(--blue-lt);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.10);
+}
+.contrib-field textarea { resize: vertical; min-height: 70px; }
+.contrib-field.ai-filled input,
+.contrib-field.ai-filled select,
+.contrib-field.ai-filled textarea {
+  border-color: var(--green);
+  background: #f0fdf4;
+  animation: aiFillPulse .45s ease;
+}
+@keyframes aiFillPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(16,185,129,.4); }
+  70%  { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
+  100% { box-shadow: none; }
+}
+
+/* ── STEP 4: Chat input ── */
+.chat-persistent-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 13px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  font-size: .76rem;
+  color: var(--gray-700);
+  margin-bottom: 12px;
+  line-height: 1.45;
+}
+.chat-input-wrap {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--gray-100);
+}
+.chat-input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 50px;
+  font-size: .875rem;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color .18s;
+}
+.chat-input:focus { border-color: var(--blue-lt); box-shadow: 0 0 0 3px rgba(59,130,246,.10); }
+.chat-send-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform .15s, box-shadow .15s;
+}
+.chat-send-btn:hover { transform: scale(1.08); box-shadow: 0 4px 12px rgba(26,86,219,.4); }
+
+/* ── STEP 3: Diálogo IA (legacy, kept for compatibility) ── */
 .ai-prefilled {
   background: linear-gradient(135deg, #eff6ff, #f5f3ff);
   border: 1px solid #c7d2fe;
@@ -1802,6 +1901,7 @@ footer {
   inset: 0;
   z-index: 3000;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 24px;
@@ -1882,6 +1982,29 @@ footer {
 }
 .login-logo img { height: 32px; filter: brightness(0) invert(1); opacity: .9; }
 .login-logo span { font-size: 1.25rem; font-weight: 800; color: var(--white); letter-spacing: -.3px; }
+
+.login-context-hint {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 12px;
+  padding: 11px 20px;
+  background: rgba(255,255,255,.11);
+  border: 1px solid rgba(255,255,255,.20);
+  border-radius: 50px;
+  font-size: .82rem;
+  font-weight: 500;
+  color: rgba(255,255,255,.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  letter-spacing: .01em;
+  animation: hintDrop .28s cubic-bezier(.22,.68,0,1.2) both;
+}
+@keyframes hintDrop {
+  from { opacity: 0; transform: translateY(-10px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.login-context-hint svg { flex-shrink: 0; opacity: .75; }
 
 /* ── Screens ── */
 .login-screen { }

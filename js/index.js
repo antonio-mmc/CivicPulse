@@ -117,14 +117,18 @@ let replyGiven  = false;
 const TOTAL_STEPS = 5;
 
 const stepTitles = {
-  1: '📎 Partilhe o Problema',
+  1: '📝 Nova Contribuição',
   2: '🤖 IA a Processar...',
-  3: '💬 Diálogo com a IA',
-  4: '🔗 Contexto e Comunidade',
-  5: '✅ Enviado para o Município'
+  3: '🔗 Contexto e Comunidade',
+  4: '💬 Conversa com a IA',
+  5: '✅ Contribuição Enviada'
 };
 
 function openModal() {
+  if (!isLoggedIn) {
+    openLogin('Para fazer uma contribuição precisa de ter sessão iniciada.');
+    return;
+  }
   resetModal();
   document.getElementById('modalOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -152,6 +156,7 @@ function showStep(n) {
   currentStep = n;
 
   if (n === 2) startProcessing();
+  if (n === 4) initChat();
   if (n === 5) triggerConfirmAnimation();
 }
 
@@ -165,54 +170,72 @@ function prevStep() {
 
 // ── Reset ──────────────────────────────────────────────────────────────────
 function resetModal() {
-  currentStep = 1;
-  replyGiven  = false;
+  currentStep  = 1;
+  replyGiven   = false;
+  chatMsgCount = 0;
 
-  // Step 1
+  // Step 1 — upload
   document.getElementById('uploadZone').classList.remove('hidden');
   document.getElementById('uploadPreview').classList.add('hidden');
   document.getElementById('step1Btn').disabled = true;
-  const ta = document.getElementById('step1Text');
-  if (ta) ta.value = '';
+
+  // Step 1 — form fields
+  ['fieldCategoria','fieldMorada','fieldDescricao','fieldData'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+    document.getElementById('cf-' + id.replace('field','').toLowerCase())?.classList.remove('ai-filled');
+  });
+  const status = document.getElementById('aiSuggestStatus');
+  if (status) status.textContent = '⏳ IA a analisar a imagem...';
 
   // Step 2 proc steps
   ['proc1','proc2','proc3','proc4'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('done');
+    document.getElementById(id)?.classList.remove('done');
   });
 
-  // Step 3 chat
-  const chat = document.getElementById('chatSession');
-  if (chat) {
-    chat.innerHTML = `
-      <div class="chat-msg ai-msg">
-        <div class="chat-avatar">🤖</div>
-        <div class="chat-bubble-msg">Confirmei os detalhes com base na sua foto. Existe alguma situação de perigo imediato neste local?</div>
-      </div>`;
-  }
-  const qr = document.getElementById('quickReplies');
-  if (qr) { qr.style.display = 'flex'; qr.querySelectorAll('button').forEach(b => b.disabled = false); }
-  const s3f = document.getElementById('step3Footer');
-  if (s3f) s3f.classList.add('hidden');
-
-  // Step 4 join btn
+  // Step 3 join btn
   const jb = document.getElementById('joinBtn');
   if (jb) { jb.textContent = '👥 Entrar na Comunidade'; jb.style.background = ''; }
+
+  // Step 4 chat
+  const chat = document.getElementById('chatSession');
+  if (chat) chat.innerHTML = '';
+  const ci = document.getElementById('chatInput');
+  if (ci) ci.value = '';
 
   showStep(1);
 }
 
-// ── Step 1: upload / text ──────────────────────────────────────────────────
+// ── Step 1: upload + AI field fill ────────────────────────────────────────
 function simulateUpload() {
   document.getElementById('uploadZone').classList.add('hidden');
   document.getElementById('uploadPreview').classList.remove('hidden');
-  document.getElementById('step1Btn').disabled = false;
+
+  setTimeout(() => {
+    const fills = {
+      fieldCategoria: 'pavimento',
+      fieldMorada:    'Rua António Sérgio, 45, Lisboa',
+      fieldDescricao: 'Buraco de aproximadamente 40 cm no passeio junto ao poste de luz nº 12. Representa risco de queda, especialmente para idosos e crianças.',
+      fieldData:      new Date().toISOString().split('T')[0]
+    };
+    Object.entries(fills).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      const cf = document.getElementById('cf-' + id.replace('field','').toLowerCase());
+      if (el) el.value = val;
+      if (cf) cf.classList.add('ai-filled');
+    });
+    const status = document.getElementById('aiSuggestStatus');
+    if (status) status.textContent = '✨ Preenchido pela IA — pode editar';
+    document.getElementById('step1Btn').disabled = false;
+  }, 1800);
 }
 
-function onTextInput() {
-  const val = document.getElementById('step1Text').value.trim();
-  document.getElementById('step1Btn').disabled = val.length < 10;
+function onFormInput() {
+  const desc = document.getElementById('fieldDescricao')?.value.trim() ?? '';
+  document.getElementById('step1Btn').disabled = desc.length < 5;
 }
+
+function onTextInput() { onFormInput(); }
 
 // ── Step 2: AI processing animation ───────────────────────────────────────
 function startProcessing() {
@@ -226,25 +249,49 @@ function startProcessing() {
   setTimeout(() => showStep(3), ids.length * 550 + 600);
 }
 
-// ── Step 3: quick-reply conversation ─────────────────────────────────────
-function quickReply(type) {
-  if (replyGiven) return;
-  replyGiven = true;
+// ── Step 3: join community ────────────────────────────────────────────────
+function joinCommunity() {
+  const btn = document.getElementById('joinBtn');
+  btn.textContent = '✓ Entrou na Comunidade!';
+  btn.style.background = 'linear-gradient(135deg,#10b981,#34d399)';
+  setTimeout(() => nextStep(), 800);
+}
+
+// ── Step 4: chatbot ───────────────────────────────────────────────────────
+let chatMsgCount = 0;
+
+const aiChatResponses = [
+  'Para enriquecer o relatório enviado ao município, gostaria de perceber melhor a situação. <strong>Há quanto tempo este problema existe neste local?</strong>',
+  'Entendido. Este tipo de problema representa um risco para cidadãos com mobilidade reduzida. Sabe se foi reportado anteriormente à Junta de Freguesia ou à Câmara?',
+  'Muito útil. A IA identificou <strong>3 ocorrências similares</strong> nas ruas adjacentes. Tem conhecimento de outros pontos problemáticos na mesma zona?',
+  'Excelente. Tem alguma questão sobre o que está planeado para esta área ou sobre como o processo municipal funciona?',
+  'Obrigado pela informação adicional. Tudo foi registado e será tido em conta. Pode continuar a colocar questões ou clicar em <strong>Concluir</strong> quando quiser.'
+];
+
+function initChat() {
+  chatMsgCount = 0;
+  const chat = document.getElementById('chatSession');
+  if (!chat) return;
+  chat.innerHTML = '';
+  setTimeout(() => {
+    appendAiMsg(chat, 'A sua contribuição foi registada! Posso fazer-lhe algumas perguntas para enriquecer o relatório? Esta conversa ficará sempre disponível em <strong>Minhas Contribuições</strong>.');
+  }, 350);
+}
+
+function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const msg = input?.value.trim();
+  if (!msg) return;
+  input.value = '';
 
   const chat = document.getElementById('chatSession');
-  const qr   = document.getElementById('quickReplies');
 
-  // Disable buttons immediately
-  qr.querySelectorAll('button').forEach(b => b.disabled = true);
-
-  // User bubble
-  const userMsg = document.createElement('div');
-  userMsg.className = 'chat-msg user-msg';
-  userMsg.innerHTML = `<div class="chat-bubble-msg">${type === 'urgent' ? '⚠️ Sim, é urgente' : '📋 Não, é gradual'}</div>`;
-  chat.appendChild(userMsg);
+  const userDiv = document.createElement('div');
+  userDiv.className = 'chat-msg user-msg';
+  userDiv.innerHTML = `<div class="chat-bubble-msg">${msg}</div>`;
+  chat.appendChild(userDiv);
   chat.scrollTop = chat.scrollHeight;
 
-  // Typing indicator
   const typing = document.createElement('div');
   typing.className = 'chat-msg ai-msg';
   typing.id = 'typingIndicator';
@@ -254,31 +301,18 @@ function quickReply(type) {
 
   setTimeout(() => {
     document.getElementById('typingIndicator')?.remove();
-
-    const aiReply = document.createElement('div');
-    aiReply.className = 'chat-msg ai-msg';
-
-    if (type === 'urgent') {
-      aiReply.innerHTML = `<div class="chat-avatar">🤖</div><div class="chat-bubble-msg">Entendido. Marquei como <strong>Alta Prioridade</strong> e alertei os serviços municipais. A sua contribuição entra na fila urgente. Quer ver as ocorrências similares encontradas?</div>`;
-    } else {
-      aiReply.innerHTML = `<div class="chat-avatar">🤖</div><div class="chat-bubble-msg">Obrigado. Registei como <strong>Prioridade Média</strong>. Encontrei 8 situações similares na sua zona que podem ser tratadas em conjunto pelo município. Quer ver o contexto?</div>`;
-    }
-
-    chat.appendChild(aiReply);
-    chat.scrollTop = chat.scrollHeight;
-
-    const s3f = document.getElementById('step3Footer');
-    if (s3f) s3f.classList.remove('hidden');
-    qr.style.display = 'none';
-  }, 1600);
+    const response = aiChatResponses[Math.min(chatMsgCount, aiChatResponses.length - 1)];
+    chatMsgCount++;
+    appendAiMsg(chat, response);
+  }, 1100 + Math.random() * 700);
 }
 
-// ── Step 4: join community ─────────────────────────────────────────────────
-function joinCommunity() {
-  const btn = document.getElementById('joinBtn');
-  btn.textContent = '✓ Entrou na Comunidade!';
-  btn.style.background = 'linear-gradient(135deg,#10b981,#34d399)';
-  setTimeout(() => nextStep(), 800);
+function appendAiMsg(chat, html) {
+  const div = document.createElement('div');
+  div.className = 'chat-msg ai-msg';
+  div.innerHTML = `<div class="chat-avatar">🤖</div><div class="chat-bubble-msg">${html}</div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
 }
 
 // ── Step 5: confirm animation ──────────────────────────────────────────────
@@ -297,9 +331,17 @@ function triggerConfirmAnimation() {
 
 let loginDone = false;
 
-function openLogin() {
+function openLogin(hint) {
   loginDone = false;
   showLScreen('ls-email');
+  const hintEl  = document.getElementById('loginContextHint');
+  const hintMsg = document.getElementById('loginContextMsg');
+  if (hint && hintEl && hintMsg) {
+    hintMsg.textContent = hint;
+    hintEl.classList.remove('hidden');
+  } else if (hintEl) {
+    hintEl.classList.add('hidden');
+  }
   document.getElementById('loginOverlay').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
 }
