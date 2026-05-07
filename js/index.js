@@ -51,13 +51,61 @@ window.addEventListener('scroll', () => {
       : '0 1px 12px rgba(15,45,110,.07)';
 });
 
+// ── Scroll-reveal — IntersectionObserver ──────────────────────────────────
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target); // fire once
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll(
+  '.reveal, .reveal-left, .reveal-right, .reveal-scale'
+).forEach(el => revealObserver.observe(el));
+
 // ── Progress bar animation on scroll ──────────────────────────────────────
 const barObserver = new IntersectionObserver(entries => {
   entries.forEach(e => {
-    if (e.isIntersecting) e.target.style.width = e.target.style.width;
+    if (e.isIntersecting) {
+      const target = e.target.getAttribute('data-width') || e.target.style.width;
+      e.target.style.width = '0';
+      requestAnimationFrame(() => {
+        setTimeout(() => { e.target.style.width = target; }, 80);
+      });
+      barObserver.unobserve(e.target);
+    }
   });
 }, { threshold: 0.3 });
-document.querySelectorAll('.progress-fill').forEach(el => barObserver.observe(el));
+
+document.querySelectorAll('.progress-fill').forEach(el => {
+  el.setAttribute('data-width', el.style.width);
+  el.style.width = '0';
+  barObserver.observe(el);
+});
+
+// ── Steps-3col progressive animation ─────────────────────────────────────
+const stepObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('active');
+      stepObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.25 });
+
+document.querySelectorAll('.steps-3col').forEach(el => stepObserver.observe(el));
+
+
+const scrollCue = document.querySelector('.hero-scroll-cue');
+if (scrollCue) {
+  window.addEventListener('scroll', () => {
+    scrollCue.style.opacity = window.scrollY > 80 ? '0' : '';
+    scrollCue.style.transition = 'opacity .4s ease';
+  }, { passive: true });
+}
+
 
 // ══════════════════════════════════════════════════════════════════════════
 //  MODAL — WIZARD DE 5 PASSOS
