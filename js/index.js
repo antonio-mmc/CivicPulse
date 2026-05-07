@@ -1,14 +1,14 @@
-// ── Smooth scroll ──────────────────────────────────────────────────────────
-document.querySelectorAll('a[href^="#"]').forEach(link => {
-  link.addEventListener('click', e => {
-    const href = link.getAttribute('href');
-    if (href === '#') { e.preventDefault(); smoothScrollTo(0, 900); return; }
-    const target = document.querySelector(href);
-    if (!target) return;
-    e.preventDefault();
-    const navH = document.querySelector('nav').offsetHeight;
-    smoothScrollTo(target.getBoundingClientRect().top + window.scrollY - navH - 12, 900);
-  });
+// ── Smooth scroll (event delegation — catches dynamically injected links too) ──
+document.addEventListener('click', e => {
+  const link = e.target.closest('a[href^="#"]');
+  if (!link) return;
+  const href = link.getAttribute('href');
+  if (href === '#') { e.preventDefault(); smoothScrollTo(0, 900); return; }
+  const target = document.querySelector(href);
+  if (!target) return;
+  e.preventDefault();
+  const navH = document.querySelector('nav').offsetHeight;
+  smoothScrollTo(target.getBoundingClientRect().top + window.scrollY - navH - 12, 900);
 });
 
 function smoothScrollTo(targetY, duration) {
@@ -91,7 +91,7 @@ function handleOverlayClick(e) {
   if (e.target === document.getElementById('modalOverlay')) closeModal();
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeLogin(); } });
 
 // ── Step navigation ────────────────────────────────────────────────────────
 function showStep(n) {
@@ -241,4 +241,251 @@ function triggerConfirmAnimation() {
     void check.offsetWidth;
     check.style.animation = 'popIn .4s ease';
   }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  LOGIN / REGISTO — GLASSMORPHISM
+// ══════════════════════════════════════════════════════════════════════════
+
+let loginDone = false;
+
+function openLogin() {
+  loginDone = false;
+  showLScreen('ls-email');
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLogin() {
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+  if (loginDone) {
+    loginDone = false;
+    updateAuthUI(true);
+    smoothScrollTo(0, 900);
+  }
+}
+
+function handleLoginOverlay(e) {
+  if (e.target === document.getElementById('loginOverlay')) closeLogin();
+}
+
+function showLScreen(id) {
+  document.querySelectorAll('.login-screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function togglePw(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const isHidden = input.type === 'password';
+  input.type = isHidden ? 'text' : 'password';
+  // swap icon opacity as visual feedback
+  btn.style.opacity = isHidden ? '0.9' : '';
+}
+
+function simulateLogin(method) {
+  loginDone = true;
+
+  const titles = {
+    email:    'Bem-vindo de volta, António!',
+    cmd:      'Autenticado com sucesso!',
+    register: 'Conta criada com sucesso!'
+  };
+  const subs = {
+    email:    'Está autenticado via email na plataforma CivicPulse.',
+    cmd:      'Autenticação via Chave Móvel Digital confirmada.',
+    register: 'Bem-vindo à comunidade CivicPulse!'
+  };
+
+  document.getElementById('ls-success-title').textContent = titles[method] || titles.email;
+  document.getElementById('ls-success-sub').textContent   = subs[method]   || subs.email;
+
+  showLScreen('ls-success');
+
+  // replay check animation
+  const check = document.querySelector('.login-success-check');
+  if (check) {
+    check.style.animation = 'none';
+    void check.offsetWidth;
+    check.style.animation = 'popIn .4s ease';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  AUTH STATE — sincronização do site com o utilizador autenticado
+// ══════════════════════════════════════════════════════════════════════════
+
+const USER = {
+  name: 'António Silva',
+  firstName: 'António',
+  initials: 'A',
+  email: 'antonio@civicpulse.pt',
+  level: 3,
+  levelName: 'Cidadão Ativo',
+  xp: 2340,
+  xpMax: 3000,
+  contributions: 23,
+  validations: 87,
+  communities: 5,
+  streak: 7
+};
+
+let isLoggedIn = false;
+
+function updateAuthUI(loggedIn) {
+  isLoggedIn = loggedIn;
+  updateNavbar(loggedIn);
+  updateGamification(loggedIn);
+  updateExplorePills(loggedIn);
+  if (loggedIn) {
+    showToast('👋', `Bem-vindo de volta, ${USER.firstName}!`);
+  }
+}
+
+/* ── Navbar ── */
+function updateNavbar(loggedIn) {
+  const area = document.getElementById('navAuthArea');
+  if (!area) return;
+  if (loggedIn) {
+    area.innerHTML = `
+      <div class="nav-user-wrap" id="navUserWrap">
+        <button class="nav-user-btn" id="navUserBtn" onclick="toggleUserDropdown(event)">
+          <div class="nav-user-avatar">${USER.initials}</div>
+          <span>${USER.firstName}</span>
+          <svg class="chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+        </button>
+        <div class="nav-dropdown hidden" id="userDropdown">
+          <div class="dd-header">
+            <div class="dd-avatar">${USER.initials}</div>
+            <div>
+              <div class="dd-name">${USER.name}</div>
+              <div class="dd-email">${USER.email}</div>
+            </div>
+          </div>
+          <div class="dd-stats">
+            <div class="dd-stat">
+              <span class="dd-stat-val">${USER.contributions}</span>
+              <span class="dd-stat-key">Contribuições</span>
+            </div>
+            <div class="dd-stat">
+              <span class="dd-stat-val">${USER.xp.toLocaleString('pt')}</span>
+              <span class="dd-stat-key">XP</span>
+            </div>
+            <div class="dd-stat">
+              <span class="dd-stat-val">Nv.${USER.level}</span>
+              <span class="dd-stat-key">${USER.levelName}</span>
+            </div>
+          </div>
+          <div class="dd-divider"></div>
+          <a href="#gamification" class="dd-item" onclick="closeUserDropdown()">🏆 As Minhas Recompensas</a>
+          <a href="#explore"      class="dd-item" onclick="closeUserDropdown(); highlightMyCards()">📍 As Minhas Contribuições</a>
+          <a href="#communities"  class="dd-item" onclick="closeUserDropdown()">👥 As Minhas Comunidades</a>
+          <div class="dd-divider"></div>
+          <button class="dd-item dd-logout" onclick="logout()">🚪 Terminar Sessão</button>
+        </div>
+      </div>`;
+  } else {
+    area.innerHTML = `
+      <a href="#" class="btn-login" id="navLoginBtn" onclick="openLogin(); return false;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+        </svg>
+        Entrar
+      </a>`;
+  }
+}
+
+/* ── Dropdown ── */
+function toggleUserDropdown(e) {
+  e.stopPropagation();
+  const dd  = document.getElementById('userDropdown');
+  const btn = document.getElementById('navUserBtn');
+  if (!dd) return;
+  const isOpen = !dd.classList.contains('hidden');
+  dd.classList.toggle('hidden', isOpen);
+  btn?.classList.toggle('open', !isOpen);
+}
+
+function closeUserDropdown() {
+  const dd  = document.getElementById('userDropdown');
+  const btn = document.getElementById('navUserBtn');
+  dd?.classList.add('hidden');
+  btn?.classList.remove('open');
+}
+
+document.addEventListener('click', () => closeUserDropdown());
+
+/* ── Gamification sync ── */
+function updateGamification(loggedIn) {
+  const banner    = document.getElementById('gamiUserBanner');
+  const guest     = document.getElementById('gamiGuest');
+  const grid      = document.getElementById('gamiGrid');
+  const levelCard = document.querySelector('.level-card');
+  const xpFill    = document.querySelector('.level-card .xp-fill');
+
+  if (loggedIn) {
+    banner?.classList.remove('hidden');
+    guest?.classList.add('hidden');
+    grid?.classList.remove('hidden');
+    levelCard?.classList.add('user-active');
+    if (xpFill) {
+      xpFill.style.width = '0%';
+      setTimeout(() => {
+        xpFill.style.transition = 'width 1.2s ease';
+        xpFill.style.width = `${(USER.xp / USER.xpMax * 100).toFixed(1)}%`;
+      }, 400);
+    }
+  } else {
+    banner?.classList.add('hidden');
+    guest?.classList.remove('hidden');
+    grid?.classList.add('hidden');
+    levelCard?.classList.remove('user-active');
+    if (xpFill) {
+      xpFill.style.transition = '';
+      xpFill.style.width = '78%';
+    }
+  }
+}
+
+/* ── Explore pills sync ── */
+function updateExplorePills(loggedIn) {
+  const existing = document.getElementById('myContribPill');
+  if (loggedIn && !existing) {
+    const pills = document.querySelector('.filter-pills');
+    if (!pills) return;
+    const pill = document.createElement('button');
+    pill.className = 'pill';
+    pill.id = 'myContribPill';
+    pill.textContent = `📌 As Minhas (${USER.contributions})`;
+    pill.onclick = () => {
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      highlightMyCards();
+    };
+    pills.appendChild(pill);
+  } else if (!loggedIn && existing) {
+    existing.remove();
+    document.querySelectorAll('.community-card').forEach(c => c.classList.remove('my-card'));
+  }
+}
+
+function highlightMyCards() {
+  const cards = document.querySelectorAll('.community-card');
+  cards.forEach((c, i) => c.classList.toggle('my-card', i < 2));
+}
+
+/* ── Logout ── */
+function logout() {
+  closeUserDropdown();
+  updateAuthUI(false);
+  showToast('👋', 'Sessão terminada. Até já!');
+}
+
+/* ── Toast ── */
+function showToast(icon, msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastIcon').textContent = icon;
+  document.getElementById('toastMsg').textContent  = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3500);
 }
