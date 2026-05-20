@@ -944,8 +944,11 @@ nav {
   font-size: .865rem;
   color: var(--gray-600);
   line-height: 1.65;
-  padding: 0 24px 20px;
-  flex: 1;
+  padding: 16px 24px 0;
+}
+.jfeat-desc-2 {
+  padding-top: 10px;
+  padding-bottom: 16px;
 }
 .jfeat-footer {
   display: flex;
@@ -983,7 +986,7 @@ nav {
 .jfeat-impact {
   display: flex;
   align-items: center;
-  margin: 0 24px 20px;
+  margin: auto 24px 20px;
   background: var(--gray-50);
   border: 1px solid var(--gray-100);
   border-radius: 10px;
