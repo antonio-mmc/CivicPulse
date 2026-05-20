@@ -492,6 +492,8 @@ function triggerConfirmAnimation() {
     void check.offsetWidth;
     check.style.animation = 'popIn .4s ease';
   }
+  // Award XP after a short pause so the user sees the confirm step first
+  setTimeout(() => awardContributionXP(), 900);
 }
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -689,29 +691,31 @@ document.addEventListener('click', () => closeUserDropdown());
 /* ── Gamification sync ── */
 function updateGamification(loggedIn) {
   const guest = document.getElementById('gamiGuest');
-  const grid = document.getElementById('gamiGrid');
+  const grid  = document.getElementById('gamiGrid');
   const levelCard = document.querySelector('.level-card');
-  const xpFill = document.querySelector('.level-card .xp-fill');
 
   if (loggedIn) {
     guest?.classList.add('hidden');
     grid?.classList.remove('hidden');
     levelCard?.classList.add('user-active');
-    if (xpFill) {
-      xpFill.style.width = '0%';
-      setTimeout(() => {
-        xpFill.style.transition = 'width 1.2s ease';
-        xpFill.style.width = `${(USER.xp / USER.xpMax * 100).toFixed(1)}%`;
-      }, 400);
+    // Animate XP bar from 0 to current value
+    const fill = document.getElementById('xpFillBar');
+    if (fill) {
+      fill.style.width = '0%';
+      setTimeout(() => updateLevelCard(true), 400);
     }
   } else {
     guest?.classList.remove('hidden');
     grid?.classList.add('hidden');
     levelCard?.classList.remove('user-active');
-    if (xpFill) {
-      xpFill.style.transition = '';
-      xpFill.style.width = '78%';
-    }
+    const fill = document.getElementById('xpFillBar');
+    if (fill) { fill.style.transition = ''; fill.style.width = '78%'; }
+    const title = document.getElementById('levelTitle');
+    if (title) title.textContent = '🏅 Nível 3 — Cidadão Ativo';
+    const label = document.getElementById('xpLabel');
+    if (label) label.textContent = '2.340 / 3.000 XP';
+    const contrib = document.getElementById('statContributions');
+    if (contrib) contrib.textContent = '23';
   }
 }
 
@@ -893,5 +897,335 @@ function deleteOccurrence(btn, event) {
   }
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+//  SISTEMA DE NÍVEIS & XP
+// ══════════════════════════════════════════════════════════════════════════
+
+const LEVEL_CONFIG = [
+  { level: 1, name: 'Novato Cívico',         medal: '🎖️', xpRequired: 0,     xpNext: 500   },
+  { level: 2, name: 'Cidadão Participativo', medal: '🥉',  xpRequired: 500,   xpNext: 1500  },
+  { level: 3, name: 'Cidadão Ativo',         medal: '🏅',  xpRequired: 1500,  xpNext: 3000  },
+  { level: 4, name: 'Defensor Urbano',       medal: '🥈',  xpRequired: 3000,  xpNext: 5500  },
+  { level: 5, name: 'Embaixador Cívico',     medal: '🥇',  xpRequired: 5500,  xpNext: 9000  },
+  { level: 6, name: 'Guardião da Cidade',    medal: '🏆',  xpRequired: 9000,  xpNext: 14000 },
+  { level: 7, name: 'Herói de Guimarães',   medal: '👑',  xpRequired: 14000, xpNext: 21000 },
+];
+
+const XP_PER_CONTRIBUTION = 150;
+
+function getLevelConfig(xp) {
+  let current = LEVEL_CONFIG[0];
+  for (let i = LEVEL_CONFIG.length - 1; i >= 0; i--) {
+    if (xp >= LEVEL_CONFIG[i].xpRequired) { current = LEVEL_CONFIG[i]; break; }
+  }
+  return current;
+}
+
+function updateLevelCard(animated = true) {
+  const cfg = getLevelConfig(USER.xp);
+
+  const xpInLevel  = USER.xp - cfg.xpRequired;
+  const xpForLevel = cfg.xpNext - cfg.xpRequired;
+  const pct = Math.min(100, (xpInLevel / xpForLevel * 100)).toFixed(1);
+
+  const titleEl   = document.getElementById('levelTitle');
+  const labelEl   = document.getElementById('xpLabel');
+  const fillEl    = document.getElementById('xpFillBar');
+  const contribEl = document.getElementById('statContributions');
+
+  if (titleEl) titleEl.textContent = `${cfg.medal} Nível ${cfg.level} — ${cfg.name}`;
+  if (labelEl) labelEl.textContent = `${USER.xp.toLocaleString('pt')} / ${cfg.xpNext.toLocaleString('pt')} XP`;
+
+  if (fillEl) {
+    if (animated) {
+      fillEl.style.transition = 'width 1.2s cubic-bezier(.4,0,.2,1)';
+    } else {
+      fillEl.style.transition = 'none';
+    }
+    fillEl.style.width = pct + '%';
+  }
+
+  if (contribEl) contribEl.textContent = USER.contributions;
+
+  // Keep USER in sync
+  USER.xpMax    = cfg.xpNext;
+  USER.level    = cfg.level;
+  USER.levelName = cfg.name;
+}
+
+function awardContributionXP() {
+  if (!isLoggedIn) return;
+
+  const oldLevel = getLevelConfig(USER.xp).level;
+
+  USER.xp          += XP_PER_CONTRIBUTION;
+  USER.contributions += 1;
+
+  const newCfg   = getLevelConfig(USER.xp);
+  const leveledUp = newCfg.level > oldLevel;
+
+  // Animate the level card
+  updateLevelCard(true);
+
+  // Show XP popup (slight delay for card animation to start first)
+  setTimeout(() => showXPRewardPopup(XP_PER_CONTRIBUTION, leveledUp), 300);
+}
+
+function showXPRewardPopup(xpGained, leveledUp) {
+  const cfg = getLevelConfig(USER.xp);
+
+  const xpInLevel  = USER.xp - cfg.xpRequired;
+  const xpForLevel = cfg.xpNext - cfg.xpRequired;
+  const pct = Math.min(100, (xpInLevel / xpForLevel * 100)).toFixed(1);
+
+  // Fill in popup content
+  const gainedEl = document.getElementById('xpGainedBig');
+  if (gainedEl) gainedEl.textContent = `+${xpGained} XP`;
+
+  const progressText = document.getElementById('xpPopupProgressText');
+  const nextLevel = cfg.level < LEVEL_CONFIG.length ? cfg.level + 1 : cfg.level;
+  if (progressText) progressText.textContent = `Progresso para Nível ${nextLevel}`;
+
+  const progressVal = document.getElementById('xpPopupProgressVal');
+  if (progressVal)
+    progressVal.textContent = `${USER.xp.toLocaleString('pt')} / ${cfg.xpNext.toLocaleString('pt')} XP`;
+
+  // Animate fill bar
+  const fill = document.getElementById('xpPopupFill');
+  if (fill) {
+    fill.style.transition = 'none';
+    fill.style.width = '0%';
+    setTimeout(() => {
+      fill.style.transition = 'width 1s cubic-bezier(.4,0,.2,1)';
+      fill.style.width = pct + '%';
+    }, 80);
+  }
+
+  // Store level-up flag so closeXPPopup knows what to do
+  const overlay = document.getElementById('xpPopupOverlay');
+  if (overlay) overlay.dataset.leveledUp = leveledUp ? '1' : '0';
+
+  // Replay popup animation
+  const popup = document.getElementById('xpPopup');
+  if (popup) { popup.style.animation = 'none'; void popup.offsetWidth; popup.style.animation = ''; }
+
+  overlay?.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeXPPopup() {
+  const overlay   = document.getElementById('xpPopupOverlay');
+  const leveledUp = overlay?.dataset.leveledUp === '1';
+  overlay?.classList.add('hidden');
+  document.body.style.overflow = '';
+
+  if (leveledUp) {
+    setTimeout(() => showLevelUpModal(), 320);
+  }
+}
+
+function handleXPPopupOverlay(e) {
+  if (e.target === document.getElementById('xpPopupOverlay')) closeXPPopup();
+}
+
+function showLevelUpModal() {
+  const cfg = getLevelConfig(USER.xp);
+
+  const badgeEl   = document.getElementById('levelupBadge');
+  const levelEl   = document.getElementById('levelupLevel');
+  const nameEl    = document.getElementById('levelupName');
+  const xpEl      = document.getElementById('levelupXP');
+  const contribEl = document.getElementById('levelupContribs');
+
+  if (badgeEl)   badgeEl.textContent   = cfg.medal;
+  if (levelEl)   levelEl.textContent   = `Nível ${cfg.level}`;
+  if (nameEl)    nameEl.textContent    = cfg.name;
+  if (xpEl)      xpEl.textContent      = `${USER.xp.toLocaleString('pt')} XP`;
+  if (contribEl) contribEl.textContent = USER.contributions;
+
+  // Replay animation
+  const modal = document.getElementById('levelupModal');
+  if (modal) { modal.style.animation = 'none'; void modal.offsetWidth; modal.style.animation = ''; }
+
+  document.getElementById('levelupOverlay')?.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLevelUp() {
+  document.getElementById('levelupOverlay')?.classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function handleLevelupOverlay(e) {
+  if (e.target === document.getElementById('levelupOverlay')) closeLevelUp();
+}
+
+// Close both popups on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeXPPopup(); closeLevelUp(); }
+});
+
+// ══════════════════════════════════════════════════════════════════════════
+//  CONQUISTAS / BADGES
+// ══════════════════════════════════════════════════════════════════════════
 
 
+const ALL_BADGES = [
+  // ── Desbloqueadas (earned: true) ──────────────────────────────────────
+  {
+    icon: '📍',
+    name: 'Primeiro Reporte',
+    desc: 'Submeteu a sua primeira ocorrência na plataforma CivicPulse.',
+    earned: true
+  },
+  {
+    icon: '🔍',
+    name: 'Validador Ativo',
+    desc: 'Validou 10 ou mais ocorrências reportadas por outros cidadãos.',
+    earned: true
+  },
+  {
+    icon: '📷',
+    name: 'Fotógrafo Urbano',
+    desc: 'Anexou fotografia em pelo menos 5 contribuições.',
+    earned: true
+  },
+  {
+    icon: '👥',
+    name: 'Membro de Comunidade',
+    desc: 'Entrou na sua primeira comunidade ativa de cidadãos.',
+    earned: true
+  },
+  {
+    icon: '🔥',
+    name: 'Sequência de 7 Dias',
+    desc: 'Participou na plataforma 7 dias consecutivos sem falhas.',
+    earned: true
+  },
+  {
+    icon: '🤝',
+    name: 'Colaborador',
+    desc: 'Apoiou a ocorrência de outro cidadão com uma validação ou comentário.',
+    earned: true
+  },
+  {
+    icon: '💬',
+    name: 'Dialogante',
+    desc: 'Completou uma conversa completa com a IA de enriquecimento de contribuição.',
+    earned: true
+  },
+  {
+    icon: '⚡',
+    name: 'Contribuidor Rápido',
+    desc: 'Reportou uma ocorrência em menos de 2 minutos após registar conta.',
+    earned: true
+  },
+  {
+    icon: '🏘️',
+    name: 'Vizinho Solidário',
+    desc: 'Apoiou ocorrências em 3 bairros diferentes de Guimarães.',
+    earned: true
+  },
+  // ── Bloqueadas (earned: false) ────────────────────────────────────────
+  {
+    icon: '🌟',
+    name: 'Embaixador Cívico',
+    desc: 'Alcance o Nível 5 e tenha 50 ou mais contribuições aceites.',
+    earned: false
+  },
+  {
+    icon: '🏆',
+    name: 'Cidadão do Mês',
+    desc: 'Seja o cidadão com mais contribuições validadas num mês.',
+    earned: false
+  },
+  {
+    icon: '🌍',
+    name: 'Impacto Real',
+    desc: 'Uma das suas contribuições resultou numa obra aprovada pela câmara.',
+    earned: false
+  },
+  {
+    icon: '📰',
+    name: 'No Jornal',
+    desc: 'A sua contribuição foi destacada no Jornal de Guimarães da plataforma.',
+    earned: false
+  },
+  {
+    icon: '🎯',
+    name: 'Precisão Máxima',
+    desc: 'Submeteu 20 contribuições com localização GPS exata confirmada.',
+    earned: false
+  },
+  {
+    icon: '🏅',
+    name: 'Veterano Cívico',
+    desc: 'Utiliza a plataforma há mais de 1 ano com atividade regular.',
+    earned: false
+  }
+];
+
+const BADGES_VISIBLE_COUNT = 9;
+
+function buildBadgeHTML(badge) {
+  const stateClass = badge.earned ? 'earned' : 'locked';
+  const lockIcon   = badge.earned ? '' : '<div class="badge-lock">🔒</div>';
+  const tooltip    = `<div class="badge-tooltip">${badge.desc}</div>`;
+  return `
+    <div class="badge-item ${stateClass}">
+      <div class="badge-icon">${badge.icon}</div>
+      <div class="badge-name">${badge.name}</div>
+      ${tooltip}
+      ${lockIcon}
+    </div>`;
+}
+
+function renderBadges() {
+  const earnedCount = ALL_BADGES.filter(b => b.earned).length;
+  const totalCount  = ALL_BADGES.length;
+
+  // ── Main card (9 badges) ──────────────────────────────────────────────
+  const mainGrid = document.getElementById('badgesGridMain');
+  const counter  = document.getElementById('badgesCounter');
+  if (mainGrid) {
+    mainGrid.innerHTML = ALL_BADGES.slice(0, BADGES_VISIBLE_COUNT).map(b => buildBadgeHTML(b)).join('');
+  }
+  if (counter) {
+    counter.textContent = `${earnedCount} / ${totalCount}`;
+  }
+
+  // ── Panel (all badges) ────────────────────────────────────────────────
+  const panelGrid    = document.getElementById('badgesPanelGrid');
+  const panelCounter = document.getElementById('badgesPanelCounter');
+  if (panelGrid) {
+    panelGrid.innerHTML = ALL_BADGES.map(b => buildBadgeHTML(b)).join('');
+  }
+  if (panelCounter) {
+    panelCounter.textContent = `${earnedCount} / ${totalCount} desbloqueadas`;
+  }
+}
+
+function openBadgesPanel() {
+  const overlay = document.getElementById('badgesPanelOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBadgesPanel() {
+  const overlay = document.getElementById('badgesPanelOverlay');
+  if (!overlay) return;
+  overlay.classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function handleBadgesPanelOverlay(e) {
+  if (e.target === document.getElementById('badgesPanelOverlay')) closeBadgesPanel();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeBadgesPanel();
+});
+
+// Render badges on load
+renderBadges();
