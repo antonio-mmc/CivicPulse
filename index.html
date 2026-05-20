@@ -526,17 +526,17 @@
       <div class="gami-card level-card reveal reveal-delay-1">
         <div class="level-avatar">A</div>
         <div class="level-name">António Silva</div>
-        <div class="level-title">🏅 Nível 3 — Cidadão Ativo</div>
+        <div class="level-title" id="levelTitle">🏅 Nível 3 — Cidadão Ativo</div>
         <div class="xp-label">
           <span>Experiência</span>
-          <span>2.340 / 3.000 XP</span>
+          <span id="xpLabel">2.340 / 3.000 XP</span>
         </div>
         <div class="xp-bar">
-          <div class="xp-fill" style="width:78%"></div>
+          <div class="xp-fill" id="xpFillBar" style="width:78%"></div>
         </div>
         <div class="level-stats">
           <div class="lstat">
-            <div class="lstat-val">23</div>
+            <div class="lstat-val" id="statContributions">23</div>
             <div class="lstat-key">Contribuições</div>
           </div>
           <div class="lstat">
@@ -552,34 +552,15 @@
 
       <!-- Badges / Conquistas -->
       <div class="gami-card badges-card reveal reveal-delay-2">
-        <div class="gami-card-title">🏆 Conquistas Desbloqueadas</div>
-        <div class="badges-grid">
-          <div class="badge-item earned">
-            <div class="badge-icon">📍</div>
-            <div class="badge-name">Primeiro Reporte</div>
-          </div>
-          <div class="badge-item earned">
-            <div class="badge-icon">🔍</div>
-            <div class="badge-name">Validador Ativo</div>
-          </div>
-          <div class="badge-item earned">
-            <div class="badge-icon">📷</div>
-            <div class="badge-name">Fotógrafo Urbano</div>
-          </div>
-          <div class="badge-item earned">
-            <div class="badge-icon">👥</div>
-            <div class="badge-name">Membro de Comunidade</div>
-          </div>
-          <div class="badge-item locked">
-            <div class="badge-icon">🌟</div>
-            <div class="badge-name">Embaixador Cívico</div>
-            <div class="badge-lock">🔒</div>
-          </div>
-          <div class="badge-item locked">
-            <div class="badge-icon">🏆</div>
-            <div class="badge-name">Cidadão do Mês</div>
-            <div class="badge-lock">🔒</div>
-          </div>
+        <div class="badges-card-header">
+          <div class="gami-card-title">🏆 Conquistas Desbloqueadas</div>
+          <div class="badges-counter" id="badgesCounter">4 / 15</div>
+        </div>
+        <div class="badges-grid" id="badgesGridMain">
+          <!-- 9 badges visíveis, geradas via JS -->
+        </div>
+        <div class="badges-more-row">
+          <button class="badges-more-btn" id="badgesMoreBtn" onclick="openBadgesPanel()">Ver todas as conquistas</button>
         </div>
       </div>
 
@@ -1198,6 +1179,75 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+     POPUP — XP GANHO
+  ══════════════════════════════════════════ -->
+  <div class="xp-popup-overlay hidden" id="xpPopupOverlay" onclick="handleXPPopupOverlay(event)">
+    <div class="xp-popup" id="xpPopup">
+      <button class="xp-popup-close" onclick="closeXPPopup()">✕</button>
+      <div class="xp-popup-emoji">🎉</div>
+      <div class="xp-popup-title">Contribuição Registada!</div>
+      <div class="xp-popup-subtitle">Obrigado por tornar Guimarães melhor.</div>
+      <div class="xp-gained-big" id="xpGainedBig">+150 XP</div>
+      <div class="xp-popup-progress-wrap">
+        <div class="xp-popup-progress-header">
+          <span id="xpPopupProgressText">Progresso para Nível 4</span>
+          <span id="xpPopupProgressVal">2.490 / 3.000 XP</span>
+        </div>
+        <div class="xp-popup-bar">
+          <div class="xp-popup-fill" id="xpPopupFill" style="width:0%"></div>
+        </div>
+      </div>
+      <button class="btn-primary xp-popup-cta" id="xpPopupCta" onclick="closeXPPopup()">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+     MODAL — SUBIDA DE NÍVEL
+  ══════════════════════════════════════════ -->
+  <div class="levelup-overlay hidden" id="levelupOverlay" onclick="handleLevelupOverlay(event)">
+    <div class="levelup-modal" id="levelupModal">
+      <div class="levelup-rays"></div>
+      <div class="levelup-content">
+        <div class="levelup-badge-icon" id="levelupBadge">🏅</div>
+        <div class="levelup-tag">Nível Atingido!</div>
+        <div class="levelup-level" id="levelupLevel">Nível 4</div>
+        <div class="levelup-name" id="levelupName">Defensor Urbano</div>
+        <div class="levelup-desc">Parabéns! A tua participação cívica valeu a pena. Continua a contribuir para desbloquear mais recompensas!</div>
+        <div class="levelup-stats">
+          <div class="levelup-stat">
+            <span class="levelup-stat-val" id="levelupXP">3.000 XP</span>
+            <span class="levelup-stat-key">Total de XP</span>
+          </div>
+          <div class="levelup-stat-divider"></div>
+          <div class="levelup-stat">
+            <span class="levelup-stat-val" id="levelupContribs">24</span>
+            <span class="levelup-stat-key">Contribuições</span>
+          </div>
+        </div>
+        <button class="btn-primary levelup-cta" onclick="closeLevelUp()">Continuar a Participar →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+     PAINEL — TODAS AS CONQUISTAS
+  ══════════════════════════════════════════ -->
+  <div class="badges-panel-overlay hidden" id="badgesPanelOverlay" onclick="handleBadgesPanelOverlay(event)">
+    <div class="badges-panel" id="badgesPanel">
+      <div class="badges-panel-header">
+        <div>
+          <h3 class="badges-panel-title">🏆 Todas as Conquistas</h3>
+          <div class="badges-panel-counter" id="badgesPanelCounter">4 / 15 desbloqueadas</div>
+        </div>
+        <button class="badges-panel-close" onclick="closeBadgesPanel()">✕</button>
+      </div>
+      <div class="badges-panel-grid" id="badgesPanelGrid">
+        <!-- gerado via JS -->
+      </div>
     </div>
   </div>
 
