@@ -9,6 +9,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
     rel="stylesheet" />
+  
+  <!-- Leaflet CSS & JS for Interactive Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
   <link rel="stylesheet" href="css/index.css" />
 </head>
 
@@ -34,7 +39,8 @@
     <div class="nav-actions">
       <div id="navAuthArea">
         <a href="#" class="btn-login" id="navLoginBtn" onclick="openLogin(); return false;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+            stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
           </svg>
@@ -60,7 +66,8 @@
     <div class="hero-content">
       <h1>Ouvir,&thinsp;Analisar,&thinsp;Agir,<br><em>Transformar.</em></h1>
 
-      <p>Reporte com foto ou texto, dialogue com a IA e veja as suas contribuições chegarem à Câmara Municipal de Guimarães enriquecidas.
+      <p>Reporte com foto ou texto, dialogue com a IA e veja as suas contribuições chegarem à Câmara Municipal de
+        Guimarães enriquecidas.
         Transparência real entre vimaranense e câmara.</p>
 
       <div class="hero-ctas">
@@ -82,7 +89,8 @@
       </div>
     </div>
 
-    <div class="hero-scroll-cue" onclick="(function(){ const t=document.querySelector('#how'); if(t) smoothScrollTo(t.getBoundingClientRect().top+window.scrollY-68-12,900); })()">
+    <div class="hero-scroll-cue"
+      onclick="(function(){ const t=document.querySelector('#how'); if(t) smoothScrollTo(t.getBoundingClientRect().top+window.scrollY-68-12,900); })()">
       <span>Descobrir</span>
       <div class="scroll-cue-arrow"></div>
     </div>
@@ -179,6 +187,16 @@
       <p class="section-sub">Explore ocorrências ativas, obras planeadas e comunidades em Guimarães.</p>
     </div>
 
+    <style>
+      .map-pin { position: absolute; width: 36px; height: 36px; transform: translate(-50%, -50%); cursor: pointer; z-index: 2; transition: transform 0.2s; }
+      .map-pin:hover { transform: translate(-50%, -50%) scale(1.1); z-index: 10; }
+      .pin-icon { width: 100%; height: 100%; background: var(--blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.25); position: relative; z-index: 2; }
+      .pin-pulse { position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid var(--blue); border-radius: 50%; animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; z-index: 1; }
+      @keyframes ping { 75%, 100% { transform: scale(1.8); opacity: 0; } }
+      .delete-card-btn { position: absolute; top: 12px; right: 12px; background: rgba(255, 255, 255, 0.9); border: 1px solid var(--gray-200); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; transition: all 0.2s ease; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+      .delete-card-btn:hover { background: #fee2e2; border-color: #fca5a5; }
+    </style>
+
     <div class="search-wrap">
       <div class="search-box">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -192,17 +210,24 @@
       </div>
     </div>
 
-    <div class="filter-pills">
-      <button class="pill active">📍 Perto de Mim</button>
-      <button class="pill">🔥 Mais Validadas</button>
-      <button class="pill">🔧 Em Resolução</button>
-      <button class="pill">✅ Resolvidas</button>
-      <button class="pill">🏗️ Obras Planeadas</button>
-      <button class="pill">🆕 Recentes</button>
+    <!-- MAPA DAS OCORRÊNCIAS (Apenas visível com login) -->
+    <div id="occurrencesMapSection" class="hidden" style="margin: 0 auto 40px auto; max-width: 1100px; padding: 24px; background: white; border-radius: var(--radius); border: 1px solid var(--gray-200); box-shadow: 0 4px 20px rgba(0,0,0,0.04);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-size: 1.25rem; color: var(--gray-800); margin: 0;">📍 Mapa Interativo de Ocorrências</h3>
+        <span class="card-badge tag-indigo" style="margin: 0;">Ao Vivo</span>
+      </div>
+      <div id="leafletMap" style="position: relative; width: 100%; height: 450px; border-radius: 12px; overflow: hidden; border: 1px solid var(--gray-200); z-index: 1;"></div>
+    </div>
+
+    <div class="filter-pills" id="exploreFilters">
+      <button class="pill active" onclick="filterExplore('todas', this)">📍 Todas as Ocorrências</button>
+      <button class="pill" onclick="filterExplore('minhas_ocorrencias', this)">📌 As Minhas Ocorrências</button>
+      <button class="pill" onclick="filterExplore('comunidades_disponiveis', this)">👥 Comunidades Disponíveis</button>
+      <button class="pill" onclick="filterExplore('minhas_comunidades', this)">💬 As Minhas Comunidades</button>
     </div>
 
     <div class="communities-grid" id="communities">
-      <div class="community-card reveal reveal-delay-1">
+      <div class="community-card reveal reveal-delay-1" data-cat="comunidade" data-mine="false">
         <div class="card-img">🚶</div>
         <div class="card-body">
           <span class="card-badge tag-orange">⚠️ Em Análise</span>
@@ -215,11 +240,13 @@
             <span>👥 <strong>120</strong> pessoas afetadas</span>
             <span>📅 3 dias atrás</span>
           </div>
-          <button class="card-join-btn" onclick="openModal()">Ver Comunidade →</button>
+          <button class="card-join-btn" onclick="openCommunityChat('Falta de passadeira junto à EB 2,3 de Urgeses')">Ver
+            Comunidade →</button>
         </div>
       </div>
 
-      <div class="community-card reveal reveal-delay-2">
+      <div class="community-card reveal reveal-delay-2" data-cat="comunidade" data-mine="true">
+        <button class="delete-card-btn" onclick="deleteOccurrence(this, event)" title="Eliminar Ocorrência">🗑️</button>
         <div class="card-img">💡</div>
         <div class="card-body">
           <span class="card-badge tag-indigo">🔧 Em Resolução</span>
@@ -232,11 +259,12 @@
             <span>👥 <strong>87</strong> pessoas afetadas</span>
             <span>📅 1 semana atrás</span>
           </div>
-          <button class="card-join-btn" onclick="openModal()">Ver Comunidade →</button>
+          <button class="card-join-btn"
+            onclick="openCommunityChat('Iluminação pública deficiente na Rua de Couros')">Ver Comunidade →</button>
         </div>
       </div>
 
-      <div class="community-card reveal reveal-delay-3">
+      <div class="community-card reveal reveal-delay-3" data-cat="comunidade" data-mine="false">
         <div class="card-img">🌳</div>
         <div class="card-body">
           <span class="card-badge tag-emerald">✅ Aprovado</span>
@@ -249,7 +277,38 @@
             <span>👥 <strong>204</strong> pessoas afetadas</span>
             <span>📅 2 semanas atrás</span>
           </div>
-          <button class="card-join-btn" onclick="openModal()">Ver Comunidade →</button>
+          <button class="card-join-btn"
+            onclick="openCommunityChat('Construção de parque infantil na Alameda da Resistência')">Ver Comunidade
+            →</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="communities-grid" style="margin-top:24px;">
+      <div class="community-card reveal reveal-delay-1" data-cat="ocorrencia" data-mine="true">
+        <button class="delete-card-btn" onclick="deleteOccurrence(this, event)" title="Eliminar Ocorrência">🗑️</button>
+        <div class="card-img" style="background: linear-gradient(135deg, #ffedd5, #fdba74);">🚯</div>
+        <div class="card-body">
+          <span class="card-badge tag-orange">⚠️ Aguarda Validação</span>
+          <div class="card-title">Contentores de lixo a transbordar na Rua de Santo António</div>
+          <div class="card-meta" style="margin-top:30px;">
+            <span>👥 <strong>1</strong> pessoa afetada</span>
+            <span>📅 Hoje</span>
+          </div>
+          <button class="card-join-btn" onclick="openModal()">Editar Ocorrência →</button>
+        </div>
+      </div>
+
+      <div class="community-card reveal reveal-delay-2" data-cat="ocorrencia" data-mine="false">
+        <div class="card-img" style="background: linear-gradient(135deg, #dbeafe, #93c5fd);">🚰</div>
+        <div class="card-body">
+          <span class="card-badge tag-indigo">⚠️ Em Análise</span>
+          <div class="card-title">Fuga de água na Praça de S. Tiago e desperdício de água</div>
+          <div class="card-meta" style="margin-top:30px;">
+            <span>👥 <strong>3</strong> pessoas afetadas</span>
+            <span>📅 Ontem</span>
+          </div>
+          <button class="card-join-btn" onclick="openModal()">Apoiar Ocorrência →</button>
         </div>
       </div>
     </div>
@@ -266,7 +325,8 @@
         <h2 class="section-title">Jornal de Guimarães</h2>
         <span class="jornal-live"><span class="live-dot"></span>Atualizado agora</span>
       </div>
-      <p class="section-sub">Veja como as contribuições dos vimaranenses se transformam em obras e melhorias concretas.</p>
+      <p class="section-sub">Veja como as contribuições dos vimaranenses se transformam em obras e melhorias concretas.
+      </p>
       <div class="jornal-filters">
         <button class="jfilter active" onclick="filterJornal('all', this)">Todas</button>
         <button class="jfilter" onclick="filterJornal('obras', this)">🏗️ Obras</button>
@@ -283,7 +343,8 @@
           <span class="article-tag tag-orange">🏗️ Obra Concluída</span>
           <span class="jornal-date">12 Abr 2026</span>
         </div>
-        <h3 class="jfeat-title">28 contribuições levaram à requalificação do passeio da Rua de Couros no centro histórico</h3>
+        <h3 class="jfeat-title">28 contribuições levaram à requalificação do passeio da Rua de Couros no centro
+          histórico</h3>
         <div class="before-after">
           <div class="ba-panel ba-before">
             <span class="ba-icon">⚠️</span>
@@ -297,7 +358,10 @@
             <span class="ba-sub">Totalmente requalificada</span>
           </div>
         </div>
-        <p class="jfeat-desc">A IA agrupou 28 ocorrências individuais reportadas por vimaranenses ao longo de 4 meses e submeteu-as como projeto prioritário à Câmara Municipal de Guimarães. A intervenção de €180.000 requalificou 340 metros de calçada na Rua de Couros, preservando o carácter histórico da zona classificada pela UNESCO e eliminando riscos de queda para moradores e turistas.</p>
+        <p class="jfeat-desc">A IA agrupou 28 ocorrências individuais reportadas por vimaranenses ao longo de 4 meses e
+          submeteu-as como projeto prioritário à Câmara Municipal de Guimarães. A intervenção de €180.000 requalificou
+          340 metros de calçada na Rua de Couros, preservando o carácter histórico da zona classificada pela UNESCO e
+          eliminando riscos de queda para moradores e turistas.</p>
         <div class="jfeat-impact">
           <div class="jimpact-item">
             <div class="jimpact-val">340m</div>
@@ -368,10 +432,13 @@
             </div>
             <div class="jornal-title">Parque das Hortas renovado após 156 contribuições dos vimaranenses</div>
           </div>
-          <p class="jornal-desc">A IA agrupou 156 contribuições, criou uma comunidade e encaminhou um relatório consolidado à CMG. Aprovação em 2 meses.</p>
+          <p class="jornal-desc">A IA agrupou 156 contribuições, criou uma comunidade e encaminhou um relatório
+            consolidado à CMG. Aprovação em 2 meses.</p>
           <div style="padding:0 20px 4px">
             <div class="progress-label"><span>Fase de Projeto</span><span>60%</span></div>
-            <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:60%"></div>
+            </div>
           </div>
           <div class="jornal-card-footer">
             <div class="jcard-tags">
@@ -407,9 +474,12 @@
         </div>
       </div>
       <div class="gami-user-stats">
-        <div class="gami-ustat"><span class="gami-ustat-val">23</span><span class="gami-ustat-key">Contribuições</span></div>
-        <div class="gami-ustat"><span class="gami-ustat-val">5</span><span class="gami-ustat-key">Comunidades</span></div>
-        <div class="gami-ustat"><span class="gami-ustat-val">🔥 7</span><span class="gami-ustat-key">dias activo</span></div>
+        <div class="gami-ustat"><span class="gami-ustat-val">23</span><span class="gami-ustat-key">Contribuições</span>
+        </div>
+        <div class="gami-ustat"><span class="gami-ustat-val">5</span><span class="gami-ustat-key">Comunidades</span>
+        </div>
+        <div class="gami-ustat"><span class="gami-ustat-val">🔥 7</span><span class="gami-ustat-key">dias activo</span>
+        </div>
       </div>
     </div>
 
@@ -419,22 +489,26 @@
         <div class="gami-benefit reveal-right reveal-delay-1">
           <span class="gami-benefit-icon">⚡</span>
           <div class="gami-benefit-title">Ganhe XP por Participar</div>
-          <div class="gami-benefit-desc">Cada contribuição, validação ou participação comunitária acumula experiência cívica que reflecte o seu impacto na cidade.</div>
+          <div class="gami-benefit-desc">Cada contribuição, validação ou participação comunitária acumula experiência
+            cívica que reflecte o seu impacto na cidade.</div>
         </div>
         <div class="gami-benefit reveal-right reveal-delay-2">
           <span class="gami-benefit-icon">🎁</span>
           <div class="gami-benefit-title">Recompensas Reais</div>
-          <div class="gami-benefit-desc">Desbloqueie descontos em transportes públicos, prioridade em pedidos municipais e convites para reuniões de câmara.</div>
+          <div class="gami-benefit-desc">Desbloqueie descontos em transportes públicos, prioridade em pedidos municipais
+            e convites para reuniões de câmara.</div>
         </div>
         <div class="gami-benefit reveal-right reveal-delay-3">
           <span class="gami-benefit-icon">📊</span>
           <div class="gami-benefit-title">Acompanhe o Impacto</div>
-          <div class="gami-benefit-desc">Saiba em tempo real o que aconteceu com as suas contribuições, obras planeadas e decisões para a sua zona.</div>
+          <div class="gami-benefit-desc">Saiba em tempo real o que aconteceu com as suas contribuições, obras planeadas
+            e decisões para a sua zona.</div>
         </div>
         <div class="gami-benefit reveal-right reveal-delay-4">
           <span class="gami-benefit-icon">🌟</span>
           <div class="gami-benefit-title">Seja Reconhecido</div>
-          <div class="gami-benefit-desc">Conquiste badges, suba de nível e torne-se uma referência cívica reconhecida pela sua comunidade e pelo município.</div>
+          <div class="gami-benefit-desc">Conquiste badges, suba de nível e torne-se uma referência cívica reconhecida
+            pela sua comunidade e pelo município.</div>
         </div>
       </div>
       <div class="gami-guest-cta">
@@ -561,7 +635,8 @@
           <img src="assets/logoSemFundo.png" alt="CivicPulse" />
           <span>CivicPulse</span>
         </div>
-        <p class="footer-desc">Plataforma de Participação Cívica para a Câmara Municipal de Guimarães. Ligamos vimaranenses e município através de IA para construir uma cidade mais justa e transparente.</p>
+        <p class="footer-desc">Plataforma de Participação Cívica para a Câmara Municipal de Guimarães. Ligamos
+          vimaranenses e município através de IA para construir uma cidade mais justa e transparente.</p>
       </div>
 
       <div class="footer-col">
@@ -596,7 +671,8 @@
     </div>
 
     <div class="footer-bottom">
-      <span class="footer-legal">© 2026 CivicPulse · Câmara Municipal de Guimarães. Todos os direitos reservados. Desenvolvido em Portugal 🇵🇹</span>
+      <span class="footer-legal">© 2026 CivicPulse · Câmara Municipal de Guimarães. Todos os direitos reservados.
+        Desenvolvido em Portugal 🇵🇹</span>
       <div class="footer-seals">
         <span class="seal"><span class="seal-icon">🔒</span> RGPD Compliant</span>
         <span class="seal"><span class="seal-icon">🏙️</span> ISO 37120 Smart Cities</span>
@@ -630,15 +706,27 @@
           <!-- Canal de submissão -->
           <div class="channel-tabs">
             <button class="channel-tab active" id="chtab-web" onclick="selectChannel('web')">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253M3 12a8.959 8.959 0 0 0 .284 2.253" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                stroke="currentColor" width="15" height="15">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253M3 12a8.959 8.959 0 0 0 .284 2.253" />
+              </svg>
               Web
             </button>
             <button class="channel-tab" id="chtab-email" onclick="selectChannel('email')">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                stroke="currentColor" width="15" height="15">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+              </svg>
               Email
             </button>
             <button class="channel-tab" id="chtab-sms" onclick="selectChannel('sms')">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 8.25h3m-3 3.75h3m-3 3.75h3" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                stroke="currentColor" width="15" height="15">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 8.25h3m-3 3.75h3m-3 3.75h3" />
+              </svg>
               SMS / Telefone
             </button>
           </div>
@@ -682,7 +770,8 @@
               </div>
               <div class="contrib-field" id="cf-morada">
                 <label>Localização / Morada</label>
-                <input type="text" id="fieldMorada" placeholder="Ex: Rua de Couros, 12, Guimarães" oninput="onFormInput()" />
+                <input type="text" id="fieldMorada" placeholder="Ex: Rua de Couros, 12, Guimarães"
+                  oninput="onFormInput()" />
               </div>
               <div class="contrib-field" id="cf-descricao">
                 <label>Descrição <span class="field-required">*</span></label>
@@ -701,13 +790,22 @@
                 <button class="chinfo-copy" onclick="copyAddress('contribuicoes@civicpulse.pt', this)">Copiar</button>
               </div>
               <div class="chinfo-steps">
-                <div class="chinfo-step"><span class="chinfo-num">1</span><span>No <strong>assunto</strong>, indique a localização — ex: <em>Rua do Ouro, 12 Lisboa</em></span></div>
-                <div class="chinfo-step"><span class="chinfo-num">2</span><span>No <strong>corpo</strong>, descreva o problema com o máximo detalhe possível</span></div>
-                <div class="chinfo-step"><span class="chinfo-num">3</span><span>Anexe <strong>fotos ou vídeos</strong> — a IA analisa e regista automaticamente</span></div>
-                <div class="chinfo-step"><span class="chinfo-num">4</span><span>Receberá uma confirmação com o <strong>número de referência</strong> em minutos</span></div>
+                <div class="chinfo-step"><span class="chinfo-num">1</span><span>No <strong>assunto</strong>, indique a
+                    localização — ex: <em>Rua do Ouro, 12 Lisboa</em></span></div>
+                <div class="chinfo-step"><span class="chinfo-num">2</span><span>No <strong>corpo</strong>, descreva o
+                    problema com o máximo detalhe possível</span></div>
+                <div class="chinfo-step"><span class="chinfo-num">3</span><span>Anexe <strong>fotos ou vídeos</strong> —
+                    a IA analisa e regista automaticamente</span></div>
+                <div class="chinfo-step"><span class="chinfo-num">4</span><span>Receberá uma confirmação com o
+                    <strong>número de referência</strong> em minutos</span></div>
               </div>
-              <a class="btn-primary chinfo-cta" href="mailto:contribuicoes@civicpulse.pt?subject=Contribuição%20—%20" onclick="closeModal()">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
+              <a class="btn-primary chinfo-cta" href="mailto:contribuicoes@civicpulse.pt?subject=Contribuição%20—%20"
+                onclick="closeModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                  stroke="currentColor" width="15" height="15">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                </svg>
                 Abrir Cliente de Email
               </a>
             </div>
@@ -729,10 +827,14 @@
                 </div>
               </div>
               <div class="chinfo-steps">
-                <div class="chinfo-step"><span class="chinfo-num">1</span><span>Envie uma <strong>SMS para 3535</strong> com a localização e descrição breve do problema</span></div>
-                <div class="chinfo-step"><span class="chinfo-num">2</span><span>Para enviar <strong>fotos ou vídeos</strong>, use MMS para o mesmo número</span></div>
-                <div class="chinfo-step"><span class="chinfo-num">3</span><span>A IA processa a mensagem e regista a contribuição <strong>automaticamente</strong></span></div>
-                <div class="chinfo-step"><span class="chinfo-num">4</span><span>Receberá uma <strong>SMS de confirmação</strong> com o número de referência</span></div>
+                <div class="chinfo-step"><span class="chinfo-num">1</span><span>Envie uma <strong>SMS para 3535</strong>
+                    com a localização e descrição breve do problema</span></div>
+                <div class="chinfo-step"><span class="chinfo-num">2</span><span>Para enviar <strong>fotos ou
+                      vídeos</strong>, use MMS para o mesmo número</span></div>
+                <div class="chinfo-step"><span class="chinfo-num">3</span><span>A IA processa a mensagem e regista a
+                    contribuição <strong>automaticamente</strong></span></div>
+                <div class="chinfo-step"><span class="chinfo-num">4</span><span>Receberá uma <strong>SMS de
+                      confirmação</strong> com o número de referência</span></div>
               </div>
             </div>
           </div>
@@ -791,7 +893,8 @@
         <div class="mstep hidden" id="mstep-4">
           <div class="chat-persistent-note">
             <span>💾</span>
-            <span>Esta conversa fica guardada em <strong>Minhas Contribuições</strong> — pode retomá-la a qualquer momento.</span>
+            <span>Esta conversa fica guardada em <strong>Minhas Contribuições</strong> — pode retomá-la a qualquer
+              momento.</span>
           </div>
           <div class="chat-session" id="chatSession"></div>
           <div class="chat-input-wrap">
@@ -799,8 +902,10 @@
               placeholder="Escreva uma mensagem ou faça uma questão..."
               onkeydown="if(event.key==='Enter'){sendChatMessage();event.preventDefault();}" />
             <button class="chat-send-btn" onclick="sendChatMessage()">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="18" height="18">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                stroke="currentColor" width="18" height="18">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
               </svg>
             </button>
           </div>
@@ -840,192 +945,263 @@
     </div>
   </div>
 
-<!-- Toast de notificação global -->
-<div class="toast" id="toast">
-  <span class="toast-icon" id="toastIcon"></span>
-  <span class="toast-msg" id="toastMsg"></span>
-</div>
+  <!-- ══════════════════════════════════════════
+     MODAL — CHAT DE COMUNIDADE
+  ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="chatOverlay" onclick="handleChatOverlay(event)">
+    <div class="modal" id="chatModal"
+      style="max-width: 500px; padding: 0; display: flex; flex-direction: column; height: 80vh; max-height: 600px;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--gray-200); padding: 16px 20px;">
+        <div class="modal-header-text">
+          <h3 id="chatCommunityTitle" style="font-size: 1.1rem; margin-bottom: 4px;">Comunidade</h3>
+          <div style="font-size: 0.8rem; color: var(--gray-500);">👥 47 membros online</div>
+        </div>
+        <button class="modal-close" onclick="closeCommunityChat()">✕</button>
+      </div>
 
-<!-- ══════════════════════════════════════════
+      <div class="chat-session" id="communityChatSession"
+        style="flex: 1; border: none; background: #fafafa; margin: 0; border-radius: 0; overflow-y: auto;">
+        <!-- Mensagens serão injetadas via JS -->
+      </div>
+
+      <div class="chat-input-wrap"
+        style="border-top: 1px solid var(--gray-200); margin: 0; padding: 14px 20px; background: white; border-radius: 0 0 var(--radius) var(--radius);">
+        <input type="text" class="chat-input" id="communityChatInput" placeholder="Escreva uma mensagem..."
+          onkeydown="if(event.key==='Enter'){sendCommunityChatMessage();event.preventDefault();}" />
+        <button class="chat-send-btn" onclick="sendCommunityChatMessage()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+            width="18" height="18">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de notificação global -->
+  <div class="toast" id="toast">
+    <span class="toast-icon" id="toastIcon"></span>
+    <span class="toast-msg" id="toastMsg"></span>
+  </div>
+
+  <!-- ══════════════════════════════════════════
      LOGIN / REGISTO — GLASSMORPHISM
 ══════════════════════════════════════════ -->
-<div class="login-overlay hidden" id="loginOverlay" onclick="handleLoginOverlay(event)">
+  <div class="login-overlay hidden" id="loginOverlay" onclick="handleLoginOverlay(event)">
 
-  <!-- Aviso contextual — aparece por cima do card quando existe contexto -->
-  <div class="login-context-hint hidden" id="loginContextHint">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-    </svg>
-    <span id="loginContextMsg">Para fazer uma contribuição precisa de ter sessão iniciada.</span>
-  </div>
-
-  <div class="login-card" id="loginCard">
-
-    <button class="login-close" onclick="closeLogin()" aria-label="Fechar">✕</button>
-
-    <!-- Logo -->
-    <div class="login-logo">
-      <img src="assets/logoSemFundo.png" alt="CivicPulse" />
-      <span>CivicPulse</span>
+    <!-- Aviso contextual — aparece por cima do card quando existe contexto -->
+    <div class="login-context-hint hidden" id="loginContextHint">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+        width="16" height="16">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+      </svg>
+      <span id="loginContextMsg">Para fazer uma contribuição precisa de ter sessão iniciada.</span>
     </div>
 
-    <!-- ── Ecrã 1: Email ── -->
-    <div class="login-screen" id="ls-email">
-      <div class="login-heading">
-        <h2>Bem-vindo de volta</h2>
-        <p>Entre para aceder à sua cidade</p>
-      </div>
-      <div class="login-form">
-        <div class="login-field">
-          <label>Email</label>
-          <input type="email" placeholder="o.seu@email.com" autocomplete="email" />
-        </div>
-        <div class="login-field">
-          <label>
-            Palavra-passe
-            <a href="#" class="forgot-link" onclick="return false">Esqueceu?</a>
-          </label>
-          <div class="pw-wrap">
-            <input type="password" id="pwEmail" placeholder="••••••••" />
-            <button class="pw-toggle" onclick="togglePw('pwEmail',this)" type="button">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
-            </button>
-          </div>
-        </div>
-        <button class="login-btn-primary" onclick="simulateLogin('email')">Entrar</button>
-      </div>
-      <div class="login-divider"><span>ou continue com</span></div>
-      <button class="cmd-btn" onclick="showLScreen('ls-cmd')">
-        <span class="cmd-flag-icon">🇵🇹</span>
-        <div class="cmd-btn-text">
-          <div class="cmd-btn-label">Chave Móvel Digital</div>
-          <div class="cmd-btn-sub">Autenticação eGovernment Portugal</div>
-        </div>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" width="14" height="14" style="margin-left:auto;flex-shrink:0;opacity:.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
-      </button>
-      <div class="login-footer">
-        Não tem conta? <a href="#" onclick="showLScreen('ls-register'); return false">Criar conta →</a>
-      </div>
-    </div>
+    <div class="login-card" id="loginCard">
 
-    <!-- ── Ecrã 2: Chave Móvel Digital ── -->
-    <div class="login-screen hidden" id="ls-cmd">
-      <button class="login-back" onclick="showLScreen('ls-email')">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
-        Voltar
-      </button>
-      <div class="cmd-official-banner">
-        <span class="cmd-official-flag">🇵🇹</span>
-        <div>
-          <div class="cmd-official-name">Chave Móvel Digital</div>
-          <div class="cmd-official-gov">República Portuguesa · eGovernment</div>
-        </div>
-        <div class="cmd-shield">🔒</div>
+      <button class="login-close" onclick="closeLogin()" aria-label="Fechar">✕</button>
+
+      <!-- Logo -->
+      <div class="login-logo">
+        <img src="assets/logoSemFundo.png" alt="CivicPulse" />
+        <span>CivicPulse</span>
       </div>
-      <div class="login-heading" style="margin-top:18px">
-        <h2>Autenticação Segura</h2>
-        <p>Use a sua Chave Móvel Digital para entrar</p>
-      </div>
-      <div class="login-form">
-        <div class="login-field">
-          <label>Número de Telemóvel / NIF / Email</label>
-          <div class="prefix-wrap">
-            <span class="input-prefix">🇵🇹 +351</span>
-            <input type="tel" placeholder="912 345 678" />
-          </div>
+
+      <!-- ── Ecrã 1: Email ── -->
+      <div class="login-screen" id="ls-email">
+        <div class="login-heading">
+          <h2>Bem-vindo de volta</h2>
+          <p>Entre para aceder à sua cidade</p>
         </div>
-        <div class="login-field">
-          <label>PIN da Chave Móvel Digital</label>
-          <div class="pw-wrap">
-            <input type="password" id="pwCmd" placeholder="PIN (4 a 8 dígitos)" maxlength="8" />
-            <button class="pw-toggle" onclick="togglePw('pwCmd',this)" type="button">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
-            </button>
+        <div class="login-form">
+          <div class="login-field">
+            <label>Email</label>
+            <input type="email" placeholder="o.seu@email.com" autocomplete="email" />
           </div>
+          <div class="login-field">
+            <label>
+              Palavra-passe
+              <a href="#" class="forgot-link" onclick="return false">Esqueceu?</a>
+            </label>
+            <div class="pw-wrap">
+              <input type="password" id="pwEmail" placeholder="••••••••" />
+              <button class="pw-toggle" onclick="togglePw('pwEmail',this)" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                  stroke="currentColor" width="16" height="16">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <button class="login-btn-primary" onclick="simulateLogin('email')">Entrar</button>
         </div>
-        <button class="login-btn-primary" onclick="simulateLogin('cmd')">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>
-          Autenticar com CMD
+        <div class="login-divider"><span>ou continue com</span></div>
+        <button class="cmd-btn" onclick="showLScreen('ls-cmd')">
+          <span class="cmd-flag-icon">🇵🇹</span>
+          <div class="cmd-btn-text">
+            <div class="cmd-btn-label">Chave Móvel Digital</div>
+            <div class="cmd-btn-sub">Autenticação eGovernment Portugal</div>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+            stroke="currentColor" width="14" height="14" style="margin-left:auto;flex-shrink:0;opacity:.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
         </button>
+        <div class="login-footer">
+          Não tem conta? <a href="#" onclick="showLScreen('ls-register'); return false">Criar conta →</a>
+        </div>
       </div>
-      <div class="login-footer" style="margin-top:14px">
-        <a href="#" style="color:rgba(255,255,255,.4);font-size:.76rem" onclick="return false">O que é a Chave Móvel Digital?</a>
-      </div>
-    </div>
 
-    <!-- ── Ecrã 3: Criar Conta ── -->
-    <div class="login-screen hidden" id="ls-register">
-      <button class="login-back" onclick="showLScreen('ls-email')">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
-        Voltar
-      </button>
-      <div class="login-heading">
-        <h2>Criar Conta</h2>
-        <p>Junte-se à comunidade CivicPulse</p>
-      </div>
-      <div class="login-form">
-        <div class="login-field">
-          <label>Nome Completo</label>
-          <input type="text" placeholder="António Silva" autocomplete="name" />
-        </div>
-        <div class="login-field">
-          <label>Email</label>
-          <input type="email" placeholder="o.seu@email.com" autocomplete="email" />
-        </div>
-        <div class="login-fields-row">
-          <div class="login-field">
-            <label>Palavra-passe</label>
-            <div class="pw-wrap">
-              <input type="password" id="pwReg" placeholder="Mín. 8 caracteres" />
-              <button class="pw-toggle" onclick="togglePw('pwReg',this)" type="button">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
-              </button>
-            </div>
-          </div>
-          <div class="login-field">
-            <label>Confirmar</label>
-            <div class="pw-wrap">
-              <input type="password" id="pwConf" placeholder="Repetir" />
-              <button class="pw-toggle" onclick="togglePw('pwConf',this)" type="button">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
-              </button>
-            </div>
-          </div>
-        </div>
-        <label class="terms-check">
-          <input type="checkbox" id="termsChk" />
-          <span>Aceito os <a href="#" onclick="return false">Termos de Utilização</a> e a <a href="#" onclick="return false">Política de Privacidade</a></span>
-        </label>
-        <button class="login-btn-primary" onclick="simulateLogin('register')">Criar Conta</button>
-      </div>
-      <div class="login-footer">
-        Já tem conta? <a href="#" onclick="showLScreen('ls-email'); return false">Entrar →</a>
-      </div>
-    </div>
-
-    <!-- ── Ecrã 4: Sucesso ── -->
-    <div class="login-screen hidden" id="ls-success">
-      <div class="login-success-wrap">
-        <div class="login-success-check">✓</div>
-        <h2 id="ls-success-title">Bem-vindo, António!</h2>
-        <p id="ls-success-sub">Está autenticado na plataforma CivicPulse.</p>
-        <div class="login-success-user">
-          <div class="login-success-avatar">A</div>
+      <!-- ── Ecrã 2: Chave Móvel Digital ── -->
+      <div class="login-screen hidden" id="ls-cmd">
+        <button class="login-back" onclick="showLScreen('ls-email')">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+            stroke="currentColor" width="14" height="14">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+          </svg>
+          Voltar
+        </button>
+        <div class="cmd-official-banner">
+          <span class="cmd-official-flag">🇵🇹</span>
           <div>
-            <div class="login-success-name">António Silva</div>
-            <div class="login-success-level">🏅 Nível 3 · Cidadão Ativo · 2.340 XP</div>
+            <div class="cmd-official-name">Chave Móvel Digital</div>
+            <div class="cmd-official-gov">República Portuguesa · eGovernment</div>
           </div>
+          <div class="cmd-shield">🔒</div>
         </div>
-        <button class="login-btn-primary" onclick="closeLogin()">
-          Continuar para a Plataforma →
-        </button>
+        <div class="login-heading" style="margin-top:18px">
+          <h2>Autenticação Segura</h2>
+          <p>Use a sua Chave Móvel Digital para entrar</p>
+        </div>
+        <div class="login-form">
+          <div class="login-field">
+            <label>Número de Telemóvel / NIF / Email</label>
+            <div class="prefix-wrap">
+              <span class="input-prefix">🇵🇹 +351</span>
+              <input type="tel" placeholder="912 345 678" />
+            </div>
+          </div>
+          <div class="login-field">
+            <label>PIN da Chave Móvel Digital</label>
+            <div class="pw-wrap">
+              <input type="password" id="pwCmd" placeholder="PIN (4 a 8 dígitos)" maxlength="8" />
+              <button class="pw-toggle" onclick="togglePw('pwCmd',this)" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                  stroke="currentColor" width="16" height="16">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <button class="login-btn-primary" onclick="simulateLogin('cmd')">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+              stroke="currentColor" width="16" height="16">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+            </svg>
+            Autenticar com CMD
+          </button>
+        </div>
+        <div class="login-footer" style="margin-top:14px">
+          <a href="#" style="color:rgba(255,255,255,.4);font-size:.76rem" onclick="return false">O que é a Chave Móvel
+            Digital?</a>
+        </div>
       </div>
+
+      <!-- ── Ecrã 3: Criar Conta ── -->
+      <div class="login-screen hidden" id="ls-register">
+        <button class="login-back" onclick="showLScreen('ls-email')">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+            stroke="currentColor" width="14" height="14">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+          </svg>
+          Voltar
+        </button>
+        <div class="login-heading">
+          <h2>Criar Conta</h2>
+          <p>Junte-se à comunidade CivicPulse</p>
+        </div>
+        <div class="login-form">
+          <div class="login-field">
+            <label>Nome Completo</label>
+            <input type="text" placeholder="António Silva" autocomplete="name" />
+          </div>
+          <div class="login-field">
+            <label>Email</label>
+            <input type="email" placeholder="o.seu@email.com" autocomplete="email" />
+          </div>
+          <div class="login-fields-row">
+            <div class="login-field">
+              <label>Palavra-passe</label>
+              <div class="pw-wrap">
+                <input type="password" id="pwReg" placeholder="Mín. 8 caracteres" />
+                <button class="pw-toggle" onclick="togglePw('pwReg',this)" type="button">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="login-field">
+              <label>Confirmar</label>
+              <div class="pw-wrap">
+                <input type="password" id="pwConf" placeholder="Repetir" />
+                <button class="pw-toggle" onclick="togglePw('pwConf',this)" type="button">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <label class="terms-check">
+            <input type="checkbox" id="termsChk" />
+            <span>Aceito os <a href="#" onclick="return false">Termos de Utilização</a> e a <a href="#"
+                onclick="return false">Política de Privacidade</a></span>
+          </label>
+          <button class="login-btn-primary" onclick="simulateLogin('register')">Criar Conta</button>
+        </div>
+        <div class="login-footer">
+          Já tem conta? <a href="#" onclick="showLScreen('ls-email'); return false">Entrar →</a>
+        </div>
+      </div>
+
+      <!-- ── Ecrã 4: Sucesso ── -->
+      <div class="login-screen hidden" id="ls-success">
+        <div class="login-success-wrap">
+          <div class="login-success-check">✓</div>
+          <h2 id="ls-success-title">Bem-vindo, António!</h2>
+          <p id="ls-success-sub">Está autenticado na plataforma CivicPulse.</p>
+          <div class="login-success-user">
+            <div class="login-success-avatar">A</div>
+            <div>
+              <div class="login-success-name">António Silva</div>
+              <div class="login-success-level">🏅 Nível 3 · Cidadão Ativo · 2.340 XP</div>
+            </div>
+          </div>
+          <button class="login-btn-primary" onclick="closeLogin()">
+            Continuar para a Plataforma →
+          </button>
+        </div>
+      </div>
+
     </div>
-
   </div>
-</div>
 
-<script src="js/index.js"></script>
+  <script src="js/index.js"></script>
 </body>
 
 </html>
