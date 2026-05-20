@@ -15,7 +15,7 @@ function smoothScrollTo(targetY, duration) {
   const startY = window.scrollY;
   const diff = targetY - startY;
   let start = null;
-  function ease(t) { return t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+  function ease(t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
   function step(ts) {
     if (!start) start = ts;
     const p = Math.min((ts - start) / duration, 1);
@@ -112,7 +112,7 @@ if (scrollCue) {
 // ══════════════════════════════════════════════════════════════════════════
 
 let currentStep = 1;
-let replyGiven  = false;
+let replyGiven = false;
 
 const TOTAL_STEPS = 5;
 
@@ -135,8 +135,91 @@ function openModal() {
 }
 
 function closeModal() {
+  if (currentStep === 5) {
+    currentStep = -1; // Prevent multiple triggers
+    const desc = document.getElementById('fieldDescricao')?.value || 'Ocorrência reportada pelo utilizador';
+    createOccurrenceCard(desc);
+  }
   document.getElementById('modalOverlay').classList.remove('open');
   document.body.style.overflow = '';
+}
+
+// ── LEAFLET MAP LOGIC ──
+let map = null;
+const mapMarkers = [];
+
+function initLeafletMap() {
+  if (map) return;
+  map = L.map('leafletMap').setView([41.4425, -8.2918], 14); // Guimarães center
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    subdomains: 'abcd',
+    maxZoom: 20
+  }).addTo(map);
+
+  const defaultLocs = [
+    { lat: 41.4385, lng: -8.2945, title: 'Falta de passadeira junto à EB 2,3 de Urgeses' },
+    { lat: 41.4412, lng: -8.2923, title: 'Iluminação pública deficiente na Rua de Couros' },
+    { lat: 41.4451, lng: -8.2891, title: 'Construção de parque infantil na Alameda da Resistência' },
+    { lat: 41.4428, lng: -8.2961, title: 'Contentores de lixo a transbordar na Rua de Santo António' },
+    { lat: 41.4435, lng: -8.2935, title: 'Fuga de água na Praça de S. Tiago' }
+  ];
+
+  defaultLocs.forEach(loc => addMarkerToMap(loc.lat, loc.lng, loc.title));
+}
+
+function addMarkerToMap(lat, lng, title) {
+  if (!map) return;
+  const marker = L.marker([lat, lng]).addTo(map);
+  marker.bindPopup(`<strong>${title}</strong>`);
+  mapMarkers.push(marker);
+}
+
+function createOccurrenceCard(title) {
+  const grids = document.querySelectorAll('.communities-grid');
+  // Use the second grid if it exists (for isolated occurrences), or fallback to the first
+  const grid = grids.length > 1 ? grids[1] : grids[0];
+  
+  const div = document.createElement('div');
+  div.className = 'community-card reveal visible'; // visible to bypass intersection observer delay
+  div.setAttribute('data-cat', 'ocorrencia');
+  div.setAttribute('data-mine', 'true');
+  
+  let shortTitle = title;
+  if (shortTitle.length > 60) shortTitle = shortTitle.substring(0, 57) + '...';
+
+  div.innerHTML = `
+    <button class="delete-card-btn" onclick="deleteOccurrence(this, event)" title="Eliminar Ocorrência">🗑️</button>
+    <div class="card-img" style="background: linear-gradient(135deg, #fef3c7, #fde68a);">📍</div>
+    <div class="card-body">
+      <span class="card-badge tag-orange">⚠️ Aguarda Validação</span>
+      <div class="card-title">${shortTitle}</div>
+      <div class="card-meta" style="margin-top:30px;">
+        <span>👥 <strong>1</strong> pessoa afetada</span>
+        <span>📅 Agora mesmo</span>
+      </div>
+      <button class="card-join-btn" onclick="openModal()">Editar Ocorrência →</button>
+    </div>
+  `;
+  grid.prepend(div);
+  
+  if (currentOccLat && currentOccLng) {
+    addMarkerToMap(currentOccLat, currentOccLng, shortTitle);
+    if (map) {
+      map.setView([currentOccLat, currentOccLng], 15, { animate: true });
+    }
+  }
+
+  // Re-apply filter so it shows up correctly based on the active tab
+  const activePill = document.querySelector('#exploreFilters .pill.active');
+  if (activePill) {
+    const text = activePill.textContent;
+    if (text.includes('Todas') || text.includes('Minhas Ocorrências')) {
+       div.style.display = '';
+    } else {
+       div.style.display = 'none';
+    }
+  }
 }
 
 function handleOverlayClick(e) {
@@ -170,8 +253,8 @@ function prevStep() {
 
 // ── Reset ──────────────────────────────────────────────────────────────────
 function resetModal() {
-  currentStep  = 1;
-  replyGiven   = false;
+  currentStep = 1;
+  replyGiven = false;
   chatMsgCount = 0;
 
   // Step 1 — canal + upload
@@ -181,16 +264,16 @@ function resetModal() {
   document.getElementById('step1Btn').disabled = true;
 
   // Step 1 — form fields
-  ['fieldCategoria','fieldMorada','fieldDescricao','fieldData'].forEach(id => {
+  ['fieldCategoria', 'fieldMorada', 'fieldDescricao', 'fieldData'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
-    document.getElementById('cf-' + id.replace('field','').toLowerCase())?.classList.remove('ai-filled');
+    document.getElementById('cf-' + id.replace('field', '').toLowerCase())?.classList.remove('ai-filled');
   });
   const status = document.getElementById('aiSuggestStatus');
   if (status) status.textContent = '⏳ IA a analisar a imagem...';
 
   // Step 2 proc steps
-  ['proc1','proc2','proc3','proc4'].forEach(id => {
+  ['proc1', 'proc2', 'proc3', 'proc4'].forEach(id => {
     document.getElementById(id)?.classList.remove('done');
   });
 
@@ -215,13 +298,13 @@ function simulateUpload() {
   setTimeout(() => {
     const fills = {
       fieldCategoria: 'pavimento',
-      fieldMorada:    'Rua de Couros, 18, Guimarães',
+      fieldMorada: 'Rua de Couros, 18, Guimarães',
       fieldDescricao: 'Buraco de aproximadamente 40 cm no passeio junto ao poste de luz nº 12. Representa risco de queda, especialmente para idosos e crianças.',
-      fieldData:      new Date().toISOString().split('T')[0]
+      fieldData: new Date().toISOString().split('T')[0]
     };
     Object.entries(fills).forEach(([id, val]) => {
       const el = document.getElementById(id);
-      const cf = document.getElementById('cf-' + id.replace('field','').toLowerCase());
+      const cf = document.getElementById('cf-' + id.replace('field', '').toLowerCase());
       if (el) el.value = val;
       if (cf) cf.classList.add('ai-filled');
     });
@@ -239,7 +322,7 @@ function onFormInput() {
 function onTextInput() { onFormInput(); }
 
 function selectChannel(ch) {
-  ['web','email','sms'].forEach(c => {
+  ['web', 'email', 'sms'].forEach(c => {
     document.getElementById('chtab-' + c)?.classList.toggle('active', c === ch);
     document.getElementById('chpanel-' + c)?.classList.toggle('hidden', c !== ch);
   });
@@ -269,9 +352,40 @@ function copyAddress(text, btn) {
   });
 }
 
+let currentOccLat = null;
+let currentOccLng = null;
+let currentOccAddressValid = true;
+let isVerifyingAddress = false;
+
+async function geocodeAddress(address) {
+  try {
+    const q = encodeURIComponent(address + ', Guimarães, Portugal');
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}`);
+    const data = await res.json();
+    if (data && data.length > 0) {
+      return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+    }
+    return null;
+  } catch(e) {
+    console.error(e);
+    return null;
+  }
+}
+
 // ── Step 2: AI processing animation ───────────────────────────────────────
 function startProcessing() {
-  const ids = ['proc1','proc2','proc3','proc4'];
+  const address = document.getElementById('fieldMorada')?.value || '';
+  geocodeAddress(address).then(coords => {
+    if (coords) {
+      currentOccLat = coords.lat;
+      currentOccLng = coords.lng;
+      currentOccAddressValid = true;
+    } else {
+      currentOccAddressValid = false;
+    }
+  });
+
+  const ids = ['proc1', 'proc2', 'proc3', 'proc4'];
   ids.forEach((id, i) => {
     setTimeout(() => {
       const el = document.getElementById(id);
@@ -302,11 +416,17 @@ const aiChatResponses = [
 
 function initChat() {
   chatMsgCount = 0;
+  isVerifyingAddress = false;
   const chat = document.getElementById('chatSession');
   if (!chat) return;
   chat.innerHTML = '';
   setTimeout(() => {
-    appendAiMsg(chat, 'A sua contribuição foi registada! Posso fazer-lhe algumas perguntas para enriquecer o relatório? Esta conversa ficará sempre disponível em <strong>Minhas Contribuições</strong>.');
+    if (!currentOccAddressValid) {
+      isVerifyingAddress = true;
+      appendAiMsg(chat, 'A IA não conseguiu localizar a morada indicada no mapa de Guimarães. Podes confirmar e reescrever o nome correto da rua ou praça?');
+    } else {
+      appendAiMsg(chat, 'A sua contribuição foi registada! Posso fazer-lhe algumas perguntas para enriquecer o relatório? Esta conversa ficará sempre disponível em <strong>Minhas Contribuições</strong>.');
+    }
   }, 350);
 }
 
@@ -331,8 +451,25 @@ function sendChatMessage() {
   chat.appendChild(typing);
   chat.scrollTop = chat.scrollHeight;
 
-  setTimeout(() => {
+  setTimeout(async () => {
     document.getElementById('typingIndicator')?.remove();
+    
+    if (isVerifyingAddress) {
+      const coords = await geocodeAddress(msg);
+      if (coords) {
+        currentOccLat = coords.lat;
+        currentOccLng = coords.lng;
+        currentOccAddressValid = true;
+        isVerifyingAddress = false;
+        const addressField = document.getElementById('fieldMorada');
+        if (addressField) addressField.value = msg;
+        appendAiMsg(chat, `Perfeito, encontrei a localização: ${msg}. A contribuição foi registada. Há quanto tempo este problema existe neste local?`);
+      } else {
+        appendAiMsg(chat, `Ainda não consegui localizar essa rua no mapa de Guimarães. Tenta usar o formato "Rua X" ou "Praça Y".`);
+      }
+      return;
+    }
+
     const response = aiChatResponses[Math.min(chatMsgCount, aiChatResponses.length - 1)];
     chatMsgCount++;
     appendAiMsg(chat, response);
@@ -366,7 +503,7 @@ let loginDone = false;
 function openLogin(hint) {
   loginDone = false;
   showLScreen('ls-email');
-  const hintEl  = document.getElementById('loginContextHint');
+  const hintEl = document.getElementById('loginContextHint');
   const hintMsg = document.getElementById('loginContextMsg');
   if (hint && hintEl && hintMsg) {
     hintMsg.textContent = hint;
@@ -409,18 +546,18 @@ function simulateLogin(method) {
   loginDone = true;
 
   const titles = {
-    email:    'Bem-vindo de volta, António!',
-    cmd:      'Autenticado com sucesso!',
+    email: 'Bem-vindo de volta, António!',
+    cmd: 'Autenticado com sucesso!',
     register: 'Conta criada com sucesso!'
   };
   const subs = {
-    email:    'Está autenticado via email na plataforma CivicPulse.',
-    cmd:      'Autenticação via Chave Móvel Digital confirmada.',
+    email: 'Está autenticado via email na plataforma CivicPulse.',
+    cmd: 'Autenticação via Chave Móvel Digital confirmada.',
     register: 'Bem-vindo à comunidade CivicPulse!'
   };
 
   document.getElementById('ls-success-title').textContent = titles[method] || titles.email;
-  document.getElementById('ls-success-sub').textContent   = subs[method]   || subs.email;
+  document.getElementById('ls-success-sub').textContent = subs[method] || subs.email;
 
   showLScreen('ls-success');
 
@@ -459,6 +596,18 @@ function updateAuthUI(loggedIn) {
   updateNavbar(loggedIn);
   updateGamification(loggedIn);
   updateExplorePills(loggedIn);
+  
+  const mapSection = document.getElementById('occurrencesMapSection');
+  if (mapSection) {
+    if (loggedIn) {
+      mapSection.classList.remove('hidden');
+      if (!map) setTimeout(initLeafletMap, 100);
+      else setTimeout(() => map.invalidateSize(), 100);
+    } else {
+      mapSection.classList.add('hidden');
+    }
+  }
+
   if (loggedIn) {
     showToast('👋', `Bem-vindo de volta, ${USER.firstName}!`);
   }
@@ -520,7 +669,7 @@ function updateNavbar(loggedIn) {
 /* ── Dropdown ── */
 function toggleUserDropdown(e) {
   e.stopPropagation();
-  const dd  = document.getElementById('userDropdown');
+  const dd = document.getElementById('userDropdown');
   const btn = document.getElementById('navUserBtn');
   if (!dd) return;
   const isOpen = !dd.classList.contains('hidden');
@@ -529,7 +678,7 @@ function toggleUserDropdown(e) {
 }
 
 function closeUserDropdown() {
-  const dd  = document.getElementById('userDropdown');
+  const dd = document.getElementById('userDropdown');
   const btn = document.getElementById('navUserBtn');
   dd?.classList.add('hidden');
   btn?.classList.remove('open');
@@ -539,10 +688,10 @@ document.addEventListener('click', () => closeUserDropdown());
 
 /* ── Gamification sync ── */
 function updateGamification(loggedIn) {
-  const guest     = document.getElementById('gamiGuest');
-  const grid      = document.getElementById('gamiGrid');
+  const guest = document.getElementById('gamiGuest');
+  const grid = document.getElementById('gamiGrid');
   const levelCard = document.querySelector('.level-card');
-  const xpFill    = document.querySelector('.level-card .xp-fill');
+  const xpFill = document.querySelector('.level-card .xp-fill');
 
   if (loggedIn) {
     guest?.classList.add('hidden');
@@ -567,30 +716,47 @@ function updateGamification(loggedIn) {
 }
 
 /* ── Explore pills sync ── */
-function updateExplorePills(loggedIn) {
-  const existing = document.getElementById('myContribPill');
-  if (loggedIn && !existing) {
-    const pills = document.querySelector('.filter-pills');
-    if (!pills) return;
-    const pill = document.createElement('button');
-    pill.className = 'pill';
-    pill.id = 'myContribPill';
-    pill.textContent = `📌 As Minhas (${USER.contributions})`;
-    pill.onclick = () => {
-      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      highlightMyCards();
-    };
-    pills.appendChild(pill);
-  } else if (!loggedIn && existing) {
-    existing.remove();
-    document.querySelectorAll('.community-card').forEach(c => c.classList.remove('my-card'));
+function filterExplore(filterType, btn) {
+  if (!isLoggedIn && (filterType === 'minhas_ocorrencias' || filterType === 'minhas_comunidades')) {
+    openLogin('Para ver as suas ocorrências e comunidades, precisa de ter sessão iniciada.');
+    return;
   }
+
+  if (btn) {
+    document.querySelectorAll('#exploreFilters .pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  const cards = document.querySelectorAll('.community-card');
+  cards.forEach(card => {
+    const isMine = card.getAttribute('data-mine') === 'true';
+    const isComunidade = card.getAttribute('data-cat') === 'comunidade';
+    const isOcorrencia = card.getAttribute('data-cat') === 'ocorrencia';
+
+    let show = false;
+    
+    if (filterType === 'todas') {
+      show = true;
+    } else if (filterType === 'minhas_ocorrencias') {
+      show = isOcorrencia && isMine;
+    } else if (filterType === 'comunidades_disponiveis') {
+      show = isComunidade && !isMine;
+    } else if (filterType === 'minhas_comunidades') {
+      show = isComunidade && isMine;
+    }
+
+    card.style.display = show ? '' : 'none';
+  });
 }
 
-function highlightMyCards() {
-  const cards = document.querySelectorAll('.community-card');
-  cards.forEach((c, i) => c.classList.toggle('my-card', i < 2));
+function updateExplorePills(loggedIn) {
+  if (!loggedIn) {
+    const activePill = document.querySelector('#exploreFilters .pill.active');
+    if (activePill && activePill.textContent.includes('As Minhas')) {
+      const allPill = document.querySelector('#exploreFilters .pill');
+      filterExplore('todas', allPill);
+    }
+  }
 }
 
 /* ── Logout ── */
@@ -604,7 +770,128 @@ function logout() {
 function showToast(icon, msg) {
   const toast = document.getElementById('toast');
   document.getElementById('toastIcon').textContent = icon;
-  document.getElementById('toastMsg').textContent  = msg;
+  document.getElementById('toastMsg').textContent = msg;
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 3500);
 }
+
+// ══════════════════════════════════════════════════════════════════════════
+//  COMMUNITY CHAT MODAL
+// ══════════════════════════════════════════════════════════════════════════
+
+const communityChats = {};
+let currentCommunityTitle = '';
+
+function getInitialCommunityChat(title) {
+  return `
+    <div class="chat-msg ai-msg">
+      <div class="chat-avatar" style="background:var(--blue-lt);font-size:1rem;">👤</div>
+      <div class="chat-bubble-msg"><strong>Maria F.</strong><br/>Olá a todos! Alguém sabe o ponto de situação sobre: ${title}?</div>
+    </div>
+    <div class="chat-msg ai-msg">
+      <div class="chat-avatar" style="background:#3b82f6;">🏛️</div>
+      <div class="chat-bubble-msg" style="border:1.5px solid #bfdbfe; background: #eff6ff;"><strong>CM Guimarães</strong><br/>A previsão de início é na próxima semana. A equipa já está mobilizada e atenta a esta ocorrência.</div>
+    </div>
+  `;
+}
+
+function openCommunityChat(title) {
+  if (!isLoggedIn) {
+    openLogin('Para participar no chat da comunidade precisa de ter sessão iniciada.');
+    return;
+  }
+  
+  title = title || 'Comunidade';
+  currentCommunityTitle = title;
+  
+  document.getElementById('chatCommunityTitle').textContent = title;
+  document.getElementById('chatOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  const chat = document.getElementById('communityChatSession');
+  
+  if (!communityChats[title]) {
+    communityChats[title] = getInitialCommunityChat(title);
+  }
+  
+  chat.innerHTML = communityChats[title];
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function closeCommunityChat() {
+  document.getElementById('chatOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleChatOverlay(e) {
+  if (e.target === document.getElementById('chatOverlay')) closeCommunityChat();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeCommunityChat();
+});
+
+function sendCommunityChatMessage() {
+  const input = document.getElementById('communityChatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  const chat = document.getElementById('communityChatSession');
+  const userDiv = document.createElement('div');
+  userDiv.className = 'chat-msg user-msg';
+  userDiv.innerHTML = `<div class="chat-bubble-msg">${msg}</div>`;
+  chat.appendChild(userDiv);
+  chat.scrollTop = chat.scrollHeight;
+  
+  // Save user message to this specific community's history
+  communityChats[currentCommunityTitle] = chat.innerHTML;
+  
+  const activeCommunity = currentCommunityTitle;
+  
+  // Simulate someone replying occasionally
+  if (Math.random() > 0.4) {
+    const typing = document.createElement('div');
+    typing.className = 'chat-msg ai-msg';
+    typing.id = 'communityTypingIndicator';
+    typing.innerHTML = `<div class="chat-avatar" style="background:var(--teal);font-size:1rem;">👤</div><div class="typing-dots"><span></span><span></span><span></span></div>`;
+    chat.appendChild(typing);
+    chat.scrollTop = chat.scrollHeight;
+
+    setTimeout(() => {
+      if (currentCommunityTitle === activeCommunity && document.getElementById('chatOverlay').classList.contains('open')) {
+        const ind = document.getElementById('communityTypingIndicator');
+        if (ind) ind.remove();
+        
+        const replyDiv = document.createElement('div');
+        replyDiv.className = 'chat-msg ai-msg';
+        replyDiv.innerHTML = `<div class="chat-avatar" style="background:var(--teal);font-size:1rem;">👤</div><div class="chat-bubble-msg"><strong>João P.</strong><br/>Concordo plenamente! É muito importante acompanharmos isto de perto.</div>`;
+        chat.appendChild(replyDiv);
+        chat.scrollTop = chat.scrollHeight;
+        communityChats[activeCommunity] = chat.innerHTML;
+      } else {
+        communityChats[activeCommunity] += `<div class="chat-msg ai-msg"><div class="chat-avatar" style="background:var(--teal);font-size:1rem;">👤</div><div class="chat-bubble-msg"><strong>João P.</strong><br/>Concordo plenamente! É muito importante acompanharmos isto de perto.</div></div>`;
+      }
+    }, 1500 + Math.random() * 1000);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  DELETE OCCURRENCE
+// ══════════════════════════════════════════════════════════════════════════
+function deleteOccurrence(btn, event) {
+  event.stopPropagation();
+  if (confirm('Tem a certeza que deseja eliminar esta ocorrência permanentemente?')) {
+    const card = btn.closest('.community-card');
+    if (card) {
+      card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      card.style.opacity = '0';
+      card.style.transform = 'scale(0.9)';
+      setTimeout(() => card.remove(), 300);
+      showToast('🗑️', 'Ocorrência eliminada com sucesso.');
+    }
+  }
+}
+
+
+
