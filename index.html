@@ -187,16 +187,6 @@
       <p class="section-sub">Explore ocorrências ativas, obras planeadas e comunidades em Guimarães.</p>
     </div>
 
-    <style>
-      .map-pin { position: absolute; width: 36px; height: 36px; transform: translate(-50%, -50%); cursor: pointer; z-index: 2; transition: transform 0.2s; }
-      .map-pin:hover { transform: translate(-50%, -50%) scale(1.1); z-index: 10; }
-      .pin-icon { width: 100%; height: 100%; background: var(--blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.25); position: relative; z-index: 2; }
-      .pin-pulse { position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid var(--blue); border-radius: 50%; animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; z-index: 1; }
-      @keyframes ping { 75%, 100% { transform: scale(1.8); opacity: 0; } }
-      .delete-card-btn { position: absolute; top: 12px; right: 12px; background: rgba(255, 255, 255, 0.9); border: 1px solid var(--gray-200); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; transition: all 0.2s ease; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-      .delete-card-btn:hover { background: #fee2e2; border-color: #fca5a5; }
-    </style>
-
     <div class="search-wrap">
       <div class="search-box">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -824,7 +814,7 @@
           <div class="modal-footer">
             <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
             <button class="btn-primary" id="step1Btn" onclick="nextStep()" disabled>
-              Enviar &nbsp;→
+              Continuar &nbsp;→
             </button>
           </div>
         </div>
@@ -1006,7 +996,7 @@
           <div class="login-field">
             <label>
               Palavra-passe
-              <a href="#" class="forgot-link" onclick="return false">Esqueceu?</a>
+              <a href="#" class="forgot-link" onclick="showToast('📧','Link de recuperação enviado para o seu email.'); return false;">Esqueceu?</a>
             </label>
             <div class="pw-wrap">
               <input type="password" id="pwEmail" placeholder="••••••••" />
@@ -1252,6 +1242,8 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="js/index.js"></script>
 </body>
 

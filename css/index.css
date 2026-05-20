@@ -15,6 +15,7 @@
   --gray-500:#64748b;
   --gray-600:#475569;
   --gray-800:#1e293b;
+  --gray-900:#0f172a;
   --green:  #10b981;
   --amber:  #f59e0b;
   --red:    #ef4444;
@@ -256,15 +257,18 @@ nav {
   text-align: center;
   padding: 120px 24px 80px;
   overflow: hidden;
+  z-index: 0;
 }
 
 .hero-bg {
   position: absolute;
-  inset: 0;
+  inset: -10%;
   background:
     linear-gradient(160deg, rgba(8,18,40,.80) 0%, rgba(6,80,110,.70) 60%, rgba(6,182,212,.40) 100%),
     url('../assets/fundoSmartCity.jpg') center/cover no-repeat;
   z-index: 0;
+  transform-origin: center center;
+  will-change: transform;
 }
 .hero-bg::after {
   content: '';
@@ -276,28 +280,6 @@ nav {
 
 .hero-content { position: relative; z-index: 2; max-width: 660px; }
 
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 6px 16px;
-  border-radius: 50px;
-  background: rgba(255,255,255,.15);
-  border: 1px solid rgba(255,255,255,.3);
-  color: rgba(255,255,255,.9);
-  font-size: .78rem;
-  font-weight: 600;
-  letter-spacing: .5px;
-  text-transform: uppercase;
-  margin-bottom: 28px;
-  backdrop-filter: blur(10px);
-}
-.badge-dot {
-  width: 7px; height: 7px;
-  background: #34d399;
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-}
 @keyframes pulse {
   0%,100% { opacity: 1; transform: scale(1); }
   50%      { opacity: .6; transform: scale(1.4); }
@@ -364,53 +346,7 @@ nav {
 }
 .btn-hero-ghost:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.8); }
 
-/* Float cards */
-.float-card {
-  position: absolute;
-  background: rgba(255,255,255,.78);
-  border: 1px solid rgba(255,255,255,.60);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  border-radius: var(--radius);
-  padding: 16px 18px 14px;
-  box-shadow: 0 8px 36px rgba(8,18,40,.22);
-  font-size: .82rem;
-  color: var(--gray-800);
-  max-width: 230px;
-  opacity: 0;
-  animation: cardCycle 18s ease-in-out infinite both;
-  z-index: 3;
-}
-@keyframes cardCycle {
-  0%    { opacity: 0; transform: translateY(14px); }
-  7%    { opacity: 1; transform: translateY(0); }
-  65%   { opacity: 1; transform: translateY(0); }
-  78%   { opacity: 0; transform: translateY(-8px); }
-  100%  { opacity: 0; transform: translateY(14px); }
-}
-.float-card-left        { left: 48px;  top: 50%; margin-top: -100px; animation-delay: 0.5s; }
-.float-card-right-upper { right: 48px; top: 50%; margin-top: -130px; animation-delay: 6.5s; }
-.float-card-right-lower { right: 48px; top: 50%; margin-top:   60px; animation-delay: 12.5s; }
 
-.float-close {
-  position: absolute;
-  top: 7px; right: 8px;
-  background: none;
-  border: none;
-  color: var(--gray-400);
-  font-size: .7rem;
-  cursor: pointer;
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  transition: background .15s, color .15s;
-  line-height: 1;
-}
-.float-close:hover { background: rgba(0,0,0,.08); color: var(--gray-800); }
-
-.float-icon  { font-size: 1.3rem; margin-bottom: 6px; }
-.float-title { font-weight: 700; font-size: .8rem; margin-bottom: 4px; }
-.float-text  { color: var(--gray-600); line-height: 1.45; font-size: .78rem; }
 .float-tag {
   display: inline-flex;
   align-items: center;
@@ -750,6 +686,24 @@ nav {
   transition: all .18s;
 }
 .card-join-btn:hover { background: var(--blue); color: var(--white); }
+
+.delete-card-btn {
+  position: absolute;
+  top: 12px; right: 12px;
+  background: rgba(255,255,255,.9);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  width: 34px; height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all .2s ease;
+  z-index: 5;
+  box-shadow: 0 2px 5px rgba(0,0,0,.05);
+}
+.delete-card-btn:hover { background: #fee2e2; border-color: #fca5a5; }
 
 /* ══════════════════════════════════════════
    JORNAL
@@ -1782,8 +1736,6 @@ footer {
 
 .modal-body { padding: 24px 28px; }
 
-/* Step utility */
-.mstep { }
 .hidden { display: none !important; }
 
 /* ── STEP 1: Upload ── */
@@ -1818,45 +1770,6 @@ footer {
 .preview-size { font-size: .78rem; color: var(--gray-600); }
 .preview-check { font-size: 1.5rem; color: var(--green); margin-left: auto; }
 
-.divider-or {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 16px 0;
-  color: var(--gray-400);
-  font-size: .8rem;
-}
-.divider-or::before, .divider-or::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--gray-200);
-}
-
-.form-group { margin-bottom: 16px; }
-.form-group label {
-  display: block;
-  font-size: .82rem;
-  font-weight: 600;
-  color: var(--gray-600);
-  margin-bottom: 6px;
-}
-.form-group textarea {
-  width: 100%;
-  padding: 11px 14px;
-  border: 1.5px solid var(--gray-200);
-  border-radius: 10px;
-  font-size: .9rem;
-  font-family: 'Inter', sans-serif;
-  color: var(--gray-800);
-  outline: none;
-  resize: none;
-  transition: border-color .2s, box-shadow .2s;
-}
-.form-group textarea:focus {
-  border-color: var(--blue-lt);
-  box-shadow: 0 0 0 3px rgba(59,130,246,.12);
-}
 
 .modal-footer {
   display: flex;
@@ -2113,34 +2026,6 @@ footer {
 }
 .chat-send-btn:hover { transform: scale(1.08); box-shadow: 0 4px 12px rgba(26,86,219,.4); }
 
-/* ── STEP 3: Diálogo IA (legacy, kept for compatibility) ── */
-.ai-prefilled {
-  background: linear-gradient(135deg, #eff6ff, #f5f3ff);
-  border: 1px solid #c7d2fe;
-  border-radius: var(--radius);
-  padding: 14px;
-  margin-bottom: 14px;
-}
-.prefilled-label {
-  font-size: .7rem;
-  font-weight: 700;
-  color: var(--blue);
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  margin-bottom: 10px;
-}
-.prefilled-field {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(199,210,254,.5);
-  font-size: .84rem;
-}
-.prefilled-field:last-child { border-bottom: none; }
-.pf-label { color: var(--gray-500); font-weight: 500; min-width: 80px; flex-shrink: 0; font-size: .8rem; }
-.pf-value { font-weight: 600; color: var(--gray-800); }
-.pf-value.warning { color: #d97706; }
 
 .chat-session {
   max-height: 210px;
@@ -2192,25 +2077,6 @@ footer {
   0%, 60%, 100% { transform: translateY(0); opacity: .4; }
   30%            { transform: translateY(-5px); opacity: 1; }
 }
-.quick-replies {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 14px;
-}
-.quick-reply-btn {
-  padding: 8px 16px;
-  border-radius: 50px;
-  border: 1.5px solid var(--blue-lt);
-  background: var(--white);
-  color: var(--blue);
-  font-size: .82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .18s;
-}
-.quick-reply-btn:hover { background: #eff6ff; }
-.quick-reply-btn:disabled { opacity: .5; cursor: not-allowed; }
 
 /* ── STEP 4: Contexto + Comunidade ── */
 .context-card {
@@ -2325,7 +2191,6 @@ footer {
 .text-center { text-align: center; }
 
 @media (max-width: 1100px) {
-  .float-card-left, .float-card-right-upper, .float-card-right-lower { display: none; }
   .gami-grid { grid-template-columns: 1fr 1fr; }
 }
 

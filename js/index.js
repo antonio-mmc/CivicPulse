@@ -33,15 +33,6 @@ document.querySelectorAll('.pill').forEach(pill => {
   });
 });
 
-// ── Float card dismiss ─────────────────────────────────────────────────────
-function dismissCard(btn) {
-  const card = btn.closest('.float-card');
-  card.style.transition = 'opacity .35s ease, transform .35s ease';
-  card.style.opacity = '0';
-  card.style.transform = 'translateY(-10px)';
-  card.style.animation = 'none';
-  setTimeout(() => card.style.display = 'none', 360);
-}
 
 // ── Navbar scroll shadow ───────────────────────────────────────────────────
 window.addEventListener('scroll', () => {
@@ -226,7 +217,16 @@ function handleOverlayClick(e) {
   if (e.target === document.getElementById('modalOverlay')) closeModal();
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeLogin(); } });
+// ── Tecla Escape — fecha qualquer modal/overlay aberto ────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  closeModal();
+  closeLogin();
+  closeCommunityChat();
+  closeXPPopup();
+  closeLevelUp();
+  closeBadgesPanel();
+});
 
 // ── Step navigation ────────────────────────────────────────────────────────
 function showStep(n) {
@@ -319,7 +319,6 @@ function onFormInput() {
   document.getElementById('step1Btn').disabled = desc.length < 5;
 }
 
-function onTextInput() { onFormInput(); }
 
 function selectChannel(ch) {
   ['web', 'email', 'sms'].forEach(c => {
@@ -328,7 +327,7 @@ function selectChannel(ch) {
   });
   const btn = document.getElementById('step1Btn');
   if (ch === 'web') {
-    btn.textContent = 'Enviar →';
+    btn.textContent = 'Continuar →';
     btn.disabled = (document.getElementById('fieldDescricao')?.value.trim().length ?? 0) < 5;
     btn.style.display = '';
   } else {
@@ -339,7 +338,8 @@ function selectChannel(ch) {
 function filterJornal(cat, btn) {
   document.querySelectorAll('.jfilter').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  document.querySelectorAll('[data-cat]').forEach(card => {
+  // scope to jornal section only — avoid hiding Explore cards that share data-cat
+  document.querySelectorAll('.jornal-bento [data-cat]').forEach(card => {
     card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
   });
 }
@@ -690,14 +690,29 @@ document.addEventListener('click', () => closeUserDropdown());
 
 /* ── Gamification sync ── */
 function updateGamification(loggedIn) {
-  const guest = document.getElementById('gamiGuest');
-  const grid  = document.getElementById('gamiGrid');
+  const guest     = document.getElementById('gamiGuest');
+  const grid      = document.getElementById('gamiGrid');
+  const banner    = document.getElementById('gamiUserBanner');
   const levelCard = document.querySelector('.level-card');
 
   if (loggedIn) {
     guest?.classList.add('hidden');
     grid?.classList.remove('hidden');
     levelCard?.classList.add('user-active');
+
+    // Populate and show the personal banner with live USER data
+    if (banner) {
+      const avatarEl  = banner.querySelector('.gami-user-avatar');
+      const welcomeEl = banner.querySelector('.gami-user-welcome');
+      const statVals  = banner.querySelectorAll('.gami-ustat-val');
+      if (avatarEl)  avatarEl.textContent  = USER.initials;
+      if (welcomeEl) welcomeEl.textContent = `Olá, ${USER.firstName}! 👋`;
+      if (statVals[0]) statVals[0].textContent = USER.contributions;
+      if (statVals[1]) statVals[1].textContent = USER.communities;
+      if (statVals[2]) statVals[2].textContent = `🔥 ${USER.streak}`;
+      banner.classList.remove('hidden');
+    }
+
     // Animate XP bar from 0 to current value
     const fill = document.getElementById('xpFillBar');
     if (fill) {
@@ -707,6 +722,7 @@ function updateGamification(loggedIn) {
   } else {
     guest?.classList.remove('hidden');
     grid?.classList.add('hidden');
+    banner?.classList.add('hidden');
     levelCard?.classList.remove('user-active');
     const fill = document.getElementById('xpFillBar');
     if (fill) { fill.style.transition = ''; fill.style.width = '78%'; }
@@ -753,13 +769,28 @@ function filterExplore(filterType, btn) {
   });
 }
 
+function highlightMyCards() {
+  // Activate "As Minhas Ocorrências" filter
+  const myPill = document.querySelector('#exploreFilters .pill:nth-child(2)');
+  if (myPill) filterExplore('minhas_ocorrencias', myPill);
+  // Apply visual highlight to owned cards
+  document.querySelectorAll('.community-card[data-mine="true"]').forEach(card => {
+    card.classList.add('my-card');
+  });
+}
+
 function updateExplorePills(loggedIn) {
   if (!loggedIn) {
+    // Reset to "Todas" if a personal filter was active
     const activePill = document.querySelector('#exploreFilters .pill.active');
     if (activePill && activePill.textContent.includes('As Minhas')) {
       const allPill = document.querySelector('#exploreFilters .pill');
       filterExplore('todas', allPill);
     }
+    // Remove visual highlight from own cards
+    document.querySelectorAll('.community-card.my-card').forEach(card => {
+      card.classList.remove('my-card');
+    });
   }
 }
 
@@ -831,9 +862,6 @@ function handleChatOverlay(e) {
   if (e.target === document.getElementById('chatOverlay')) closeCommunityChat();
 }
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeCommunityChat();
-});
 
 function sendCommunityChatMessage() {
   const input = document.getElementById('communityChatInput');
@@ -1060,10 +1088,6 @@ function handleLevelupOverlay(e) {
   if (e.target === document.getElementById('levelupOverlay')) closeLevelUp();
 }
 
-// Close both popups on Escape
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeXPPopup(); closeLevelUp(); }
-});
 
 // ══════════════════════════════════════════════════════════════════════════
 //  CONQUISTAS / BADGES
@@ -1223,9 +1247,115 @@ function handleBadgesPanelOverlay(e) {
   if (e.target === document.getElementById('badgesPanelOverlay')) closeBadgesPanel();
 }
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeBadgesPanel();
-});
 
 // Render badges on load
 renderBadges();
+
+// ══════════════════════════════════════════
+//   GSAP — Cinematic Scroll Experience
+// ══════════════════════════════════════════
+(function initCinematicScroll() {
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // ── 1. Hero: pin + zoom da cidade + fade do conteúdo ──────────────────────
+  const heroTl = gsap.timeline({
+    scrollTrigger: {
+      trigger: '.hero',
+      start: 'top top',
+      end: '+=700',
+      pin: true,
+      pinSpacing: true,
+      scrub: 1.8,
+      anticipatePin: 1,
+      onLeave: () => ScrollTrigger.refresh(),
+    }
+  });
+
+  heroTl
+    // Cidade faz zoom lento e dramático
+    .to('.hero-bg', {
+      scale: 1.18,
+      ease: 'none',
+    }, 0)
+    // Texto sobe e desvanece
+    .to('.hero-content', {
+      y: -90,
+      opacity: 0,
+      ease: 'power2.in',
+    }, 0)
+    // Seta de scroll desaparece rapidamente
+    .to('.hero-scroll-cue', {
+      opacity: 0,
+      y: 20,
+      ease: 'none',
+      duration: 0.15,
+    }, 0);
+
+  // ── 2. Secções: títulos e subs já têm CSS reveal — GSAP não interfere ─────
+  // (os .section-title estão dentro de .reveal containers, o IntersectionObserver
+  //  trata deles; não aplicamos fromTo para não pôr opacity:0 por engano)
+
+  // ── 3. Jornal featured: entra da esquerda ────────────────────────────────
+  // Remove classe reveal para evitar conflito CSS ↔ GSAP
+  const jFeat = document.querySelector('.jornal-featured');
+  if (jFeat) {
+    jFeat.classList.remove('reveal', 'reveal-delay-1', 'reveal-delay-2');
+    gsap.fromTo(jFeat,
+      { x: -70, opacity: 0 },
+      {
+        x: 0, opacity: 1,
+        duration: 1.1,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: jFeat,
+          start: 'top 88%',
+          toggleActions: 'play none none none',
+        }
+      }
+    );
+  }
+
+  // ── 4. Sidebar do jornal: entra da direita ────────────────────────────────
+  const jSide = document.querySelector('.jornal-sidebar');
+  if (jSide) {
+    jSide.classList.remove('reveal', 'reveal-delay-1', 'reveal-delay-2');
+    gsap.fromTo(jSide,
+      { x: 70, opacity: 0 },
+      {
+        x: 0, opacity: 1,
+        duration: 1.1,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: jSide,
+          start: 'top 88%',
+          toggleActions: 'play none none none',
+        }
+      }
+    );
+  }
+
+  // ── 5. Steps: entram todos juntos em stagger rápido ──────────────────────
+  const steps = gsap.utils.toArray('.step');
+  steps.forEach(el => {
+    el.classList.remove('reveal', 'reveal-delay-1', 'reveal-delay-2', 'reveal-delay-3', 'reveal-delay-4');
+  });
+  if (steps.length) {
+    gsap.fromTo(steps,
+      { y: 40, opacity: 0, scale: 0.97 },
+      {
+        y: 0, opacity: 1, scale: 1,
+        duration: 0.45,
+        ease: 'power2.out',
+        stagger: 0.08,
+        scrollTrigger: {
+          trigger: '#how',
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        }
+      }
+    );
+  }
+
+})();
