@@ -8,7 +8,7 @@ document.addEventListener('click', e => {
   if (!target) return;
   e.preventDefault();
   const navH = document.querySelector('nav').offsetHeight;
-  smoothScrollTo(target.getBoundingClientRect().top + window.scrollY - navH - 12, 900);
+  smoothScrollTo(target.getBoundingClientRect().top + window.scrollY - navH - 1, 900);
 });
 
 function smoothScrollTo(targetY, duration) {
@@ -1267,9 +1267,8 @@ renderBadges();
       end: '+=700',
       pin: true,
       pinSpacing: true,
-      scrub: 1.8,
+      scrub: 1.2,
       anticipatePin: 1,
-      onLeave: () => ScrollTrigger.refresh(),
     }
   });
 
